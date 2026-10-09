@@ -53,20 +53,33 @@
     nav.main-nav { display:flex; gap:28px; font-size:.74rem; font-weight:600; letter-spacing:.05em; text-transform:uppercase; color: var(--ink) }
     nav.main-nav a { opacity:.65; transition:opacity .2s }
     nav.main-nav a:hover, nav.main-nav a.active { opacity:1 }
+    .nav-toggle { display:none; background:none; border:0; font-size:1.5rem; line-height:1; color: var(--ink); cursor:pointer; padding:4px 6px }
+    @media (max-width:780px) {
+      .nav-toggle { display:block }
+      nav.main-nav { display:none; width:100%; flex-direction:column; gap:18px; padding-top:14px }
+      nav.main-nav.open { display:flex }
+    }
 
     /* ── Hero ───────────────────────────────────────────────────────── */
-    .hero { position:relative; padding:72px max(5vw,24px) 56px; overflow:hidden }
-    .hero-bg { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; z-index:0; opacity:.5 }
-    .hero-scrim { position:absolute; inset:0; z-index:1; background:linear-gradient(180deg,rgba(11,11,11,.4) 0%,rgba(11,11,11,.3) 40%,rgba(11,11,11,.12) 78%,var(--panna) 100%) }
-    .hero-inner { position:relative; z-index:2; max-width:1200px; margin:0 auto; display:flex; gap:48px; flex-wrap:wrap; align-items:flex-start }
-    .hero-brand { flex:1 1 420px; min-width:260px; padding-top:28px }
+    .hero { position:relative }
+    /* L'immagine detta l'altezza della sezione (nessun ritaglio, nessuna
+       altezza fissa indovinata): a piena larghezza, alta quanto serve per
+       mantenere il suo rapporto proporzioni reale */
+    .hero-bg { display:block; width:100%; height:auto; opacity:.5 }
+    .hero-scrim { position:absolute; inset:0; z-index:1; background:linear-gradient(180deg,rgba(11,11,11,.97) 0%,rgba(11,11,11,.72) 40%,rgba(11,11,11,.12) 78%,var(--panna) 100%) }
+    /* Stessa disposizione di cinemamultisalateatro.ch: titolo e colonna
+       "oggi" ancorati insieme al fondo della hero, non il titolo in alto
+       e la card in basso separatamente */
+    .hero-inner { position:absolute; inset:0; z-index:2; max-width:1200px; margin:0 auto; padding:72px max(5vw,24px) 420px; box-sizing:border-box; display:flex; gap:48px; flex-wrap:wrap; align-items:flex-end }
+    .hero-brand { flex:1 1 420px; min-width:260px }
     /* "CineTour" deve restare su una riga sola: dimensione propria, più
        contenuta della ".mega" generica, non la scala intera */
     .hero-brand .mega span { text-shadow:0 2px 16px rgba(11,11,11,.5) }
-    .hero-brand .mega.openair { color: var(--ink) }
 
     /* ── Card calendario (hero, desktop) ───────────────────────────── */
-    .calendar-card { flex:1 1 320px; min-width:280px; max-width:400px; background: var(--white); border-radius:12px; padding:22px; box-shadow:0 16px 40px rgba(11,11,11,.3); align-self:flex-end }
+    /* Stessa fascia rossa in cima usata nel cassetto mobile, stesso
+       principio (gradiente sullo sfondo, non un figlio sconfinante) */
+    .calendar-card { flex:1 1 320px; min-width:280px; max-width:400px; background: linear-gradient(to bottom, var(--red) 0, var(--red) 58px, var(--white) 58px); border-radius:12px; padding:22px; box-shadow:0 16px 40px rgba(11,11,11,.3); align-self:flex-end; transform:translateY(220px) }
     .calendar-card-title { font-size:.95rem; font-weight:800; text-transform:uppercase; margin-bottom:16px; color: var(--ink) }
     .today-row { display:flex; align-items:stretch; gap:12px; padding:12px 8px; border-radius:8px; border-bottom:1px solid rgba(11,11,11,.08); color: var(--ink) }
     .today-row:hover { background: var(--panna) }
@@ -83,21 +96,26 @@
     /* ── Cassetto mobile a 3 schede ─────────────────────────────────── */
     .cal-drawer-backdrop { position:fixed; inset:0; background:rgba(11,11,11,.6); z-index:60; opacity:0; pointer-events:none; transition:opacity .25s }
     .cal-drawer-backdrop.open { opacity:1; pointer-events:auto }
-    .cal-drawer { position:fixed; left:0; right:0; bottom:0; z-index:61; background: var(--white); border-radius:16px 16px 0 0; padding:22px max(5vw,24px) 28px; max-height:70vh; overflow-y:auto; transform:translateY(100%); transition:transform .3s cubic-bezier(.16,1,.3,1); box-shadow:0 -10px 30px rgba(11,11,11,.3) }
+    /* Fascia rossa in cima al cassetto, fino a poco sotto il titolo: un
+       gradiente "a scalino" sullo sfondo del cassetto stesso invece di far
+       sconfinare l'header con margini negativi — con overflow-y:auto sul
+       cassetto, un figlio tirato fuori coi margini negativi finiva tagliato
+       dall'area di scroll e spariva del tutto */
+    .cal-drawer { position:fixed; left:0; right:0; bottom:0; z-index:61; background: linear-gradient(to bottom, var(--red) 0, var(--red) 70px, var(--white) 70px); border-radius:16px 16px 0 0; padding:22px max(5vw,24px) 28px; max-height:70vh; overflow-y:auto; transform:translateY(100%); transition:transform .3s cubic-bezier(.16,1,.3,1); box-shadow:0 -10px 30px rgba(11,11,11,.3) }
     .cal-drawer.open { transform:translateY(0) }
     .cal-drawer-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px }
-    .cal-drawer-head .title { font-size:.95rem; font-weight:800; text-transform:uppercase; color: var(--ink) }
+    .cal-drawer-head .title { font-size:.95rem; font-weight:800; text-transform:uppercase; color: var(--white) }
     .cal-drawer-close { width:32px; height:32px; border-radius:50%; background: var(--panna); border:0; font-size:.9rem; color: var(--ink); cursor:pointer }
     .drawer-film-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px }
     .drawer-film-grid img { width:100%; aspect-ratio:2/3; object-fit:cover; border-radius:6px; display:block }
     .drawer-film-grid .t { font-size:.74rem; font-weight:700; margin-top:6px; color: var(--ink) }
-    .drawer-luogo-row { display:flex; align-items:center; gap:12px; padding:10px 8px; border-bottom:1px solid rgba(11,11,11,.08) }
+    .drawer-luogo-row { display:flex; align-items:center; gap:12px; padding:10px 8px; border-bottom:1px solid rgba(11,11,11,.08); background: var(--white) }
     .drawer-luogo-row img { width:52px; height:52px; border-radius:8px; object-fit:cover; flex-shrink:0 }
     .drawer-luogo-row .n { font-size:.9rem; font-weight:700; color: var(--ink) }
     .drawer-luogo-row .c { font-size:.76rem; color: var(--muted) }
 
     .mobile-tabbar { display:none }
-    .tab-btn { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; padding:10px 4px 12px; border:0; border-right:1px solid rgba(255,253,248,.25); background: var(--red); font-size:.66rem; font-weight:700; letter-spacing:.02em; text-transform:uppercase; color: var(--white); cursor:pointer; font-family:inherit }
+    .tab-btn { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; padding:18px 4px 20px; border:0; border-right:1px solid rgba(255,253,248,.25); background: var(--red); font-size:.84rem; font-weight:700; letter-spacing:.02em; text-transform:uppercase; color: var(--white); cursor:pointer; font-family:inherit }
     .tab-btn:last-child { border-right:0 }
     .tab-btn.active { background: var(--ink) }
     /* Soglia alta apposta: "CineTour" a dimensione piena scala con la
@@ -107,7 +125,7 @@
     @media (max-width:1300px) {
       .calendar-card { display:none }
       .mobile-tabbar { display:grid; grid-template-columns:repeat(3,1fr); position:fixed; left:0; right:0; bottom:0; z-index:55; background: var(--white); border-top:1px solid rgba(11,11,11,.12); box-shadow:0 -4px 16px rgba(11,11,11,.08); padding-bottom:env(safe-area-inset-bottom) }
-      body { padding-bottom:62px }
+      body { padding-bottom:78px }
     }
 
     /* ── Statistiche ────────────────────────────────────────────────── */
@@ -119,10 +137,25 @@
     @media (max-width:780px) {
       .stats-row { display:grid; grid-template-columns:repeat(3,1fr); gap:8px 14px }
       .stat-label { line-height:1.3 }
+      /* A piena larghezza l'immagine detta l'altezza (niente ritagli): su
+         schermi stretti questo la farebbe diventare troppo bassa — qui si
+         torna a un'altezza fissa con la foto ritagliata, come prima */
+      .hero { min-height:520px }
+      .hero-bg { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:left center }
+      /* "CineTour.ch" è un'unica parola senza spazi (nessun punto di a
+         capo possibile): sotto il minimo del clamp normale poteva
+         sconfinare oltre il padding destro — qui il minimo scende così
+         il testo sta sempre nella larghezza utile, padding uguali */
+      .hero-brand { width:100%; flex-basis:100% }
+      .hero-brand .mega { font-size:clamp(2.3rem,11.2vw,10.8rem) }
     }
 
     /* ── Timeline ondulata ──────────────────────────────────────────── */
-    .tl-track { scrollbar-width:thin; margin-top:30px; overflow-x:auto; padding:10px max(5vw,24px) 30px; scroll-snap-type:x proximity }
+    /* .tl-track sta fuori da .section (deve poter scorrere a tutta
+       larghezza), ma il suo contenuto va comunque allineato a sinistra
+       con l'intestazione qui sopra: stesso max-width/centratura di
+       .section, altrimenti su schermi larghi parte più a sinistra */
+    .tl-track { max-width:1200px; margin:30px auto 0; overflow-x:auto; padding:10px max(5vw,24px) 30px; scroll-snap-type:x proximity; scrollbar-width:thin }
     .tl-track::-webkit-scrollbar { height:6px }
     .tl-track::-webkit-scrollbar-thumb { background:rgba(11,11,11,.2); border-radius:3px }
     .tl-wave-zone { position:relative; height:140px }
@@ -195,7 +228,8 @@
     .newsletter-form button:hover { background: var(--red-deep) }
 
     .social-row { display:flex; justify-content:center; gap:14px; margin-top:28px; flex-wrap:wrap }
-    .social-link { width:48px; height:48px; border-radius:50%; background: var(--white); border:1px solid rgba(11,11,11,.14); display:flex; align-items:center; justify-content:center; font-size:1.1rem; transition:transform .2s,border-color .2s }
+    .social-link { width:48px; height:48px; border-radius:50%; background: var(--white); border:1px solid rgba(11,11,11,.14); display:flex; align-items:center; justify-content:center; transition:transform .2s,border-color .2s }
+    .social-link img, .social-link svg { width:22px; height:22px; display:block }
     .social-link:hover { transform:translateY(-3px); border-color: var(--red) }
 
     /* ── Footer — stesso linguaggio di cinema-ambulante.ch: logo + titolo
@@ -223,7 +257,8 @@
 
   <header>
     <a href="index.html"><img class="logo" src="img/logo.png" alt="Cinetour.ch"></a>
-    <nav class="main-nav">
+    <button class="nav-toggle" id="navToggle" aria-label="Apri il menu" aria-expanded="false">☰</button>
+    <nav class="main-nav" id="mainNav">
       <a href="index.html" class="active">Calendario</a>
       <a href="come-funziona.html">Come funziona</a>
       <a href="chi-siamo.html">Chi siamo</a>
@@ -236,8 +271,7 @@
     <div class="hero-inner">
       <div class="hero-brand">
         <div class="eyebrow"><span></span>Il cinema all'aperto itinerante</div>
-        <h1 class="mega"><span style="color:#fffdf8">Cine</span><span style="color:#e9342f">Tour</span></h1>
-        <div class="mega openair">Open Air</div>
+        <h1 class="mega"><span style="color:#fffdf8">C<span style="text-transform:lowercase">ine</span></span><span style="color:#e9342f">T<span style="text-transform:lowercase">our</span><span style="font-size:clamp(2.2rem,5vw,3.6rem);margin-left:.15em;letter-spacing:.08em;color:#fffdf8">.ch</span></span></h1>
       </div>
       <div class="calendar-card" id="calendarCardDesktop">
         <div class="calendar-card-title">Calendario</div>
@@ -256,16 +290,16 @@
     </div>
     <div id="drawerCalendario"><div id="todayListDrawer"></div></div>
     <div id="drawerFilm" class="drawer-film-grid" style="display:none"></div>
-    <div id="drawerLuogo" style="display:none"></div>
+    <div id="drawerLuogo" style="display:none;background:var(--white);color:var(--ink)"></div>
   </div>
 
   <div class="mobile-tabbar">
-    <button class="tab-btn active" data-tab="calendario">📅 Calendario</button>
-    <button class="tab-btn" data-tab="film">🎬 Film</button>
-    <button class="tab-btn" data-tab="luogo">📍 Luogo</button>
+    <button class="tab-btn active" data-tab="calendario">Calendario</button>
+    <button class="tab-btn" data-tab="film">Film</button>
+    <button class="tab-btn" data-tab="luogo">Luogo</button>
   </div>
 
-  <div class="section" style="padding-top:48px">
+  <div class="section" style="padding-top:16px">
     <p class="sub" style="margin-top:0">Il grande evento estivo, dove i luoghi si trasformano, le persone si incontrano e il cinema emoziona.</p>
     <div class="stats-row">
       <div><div class="stat-num">30+</div><div class="stat-label">Anni di successo</div></div>
@@ -435,7 +469,7 @@ function buildEvento(booking, dateEntry, filmsById){
     // evento, qui solo come ultima risorsa se non c'è alcun backdrop
     titolo, img:ct.backdropUrl||(film&&film.backdrop)||ct.posterUrl||(film&&film.poster)||"img/hero-bg.jpg",
     dataLabel:dataLabelFull(dateEntry.date), dataBreve:dataLabelBreve(dateEntry.date), ora:dateEntry.start||'',
-    luogo:ct.luogoNome||'', via:[ct.luogoVia,ct.luogoComune].filter(Boolean).join(', '),
+    luogo:ct.luogoNome||'', luogoComune:ct.luogoComune||'', via:[ct.luogoVia,ct.luogoComune].filter(Boolean).join(', '),
     mapsUrl:ct.luogoMapsUrl||'#',
     statusLabel:st.label, statusDot:st.dot, statusText:st.text,
     prezzoLabel:pr.label, prezzoColor:pr.color,
@@ -473,6 +507,16 @@ async function loadEventi(){
   eventi=raw.sort((a,b)=>a.data.localeCompare(b.data)||a.ora.localeCompare(b.ora));
   const today=todayStr();
   oggi=eventi.filter(e=>e.stato!=='annullato'&&e.data>=today).slice(0,3);
+
+  // "Tappa dopo tappa": Cinema Multisala Teatro resta sempre il primo
+  // punto fisso, seguito dai luoghi reali del calendario pubblicato
+  // (cronologici, non annullati) — se non ce n'è ancora nessuno restano
+  // le tappe di esempio sopra
+  const tappeReali = eventi.filter(e=>e.stato!=='annullato'&&e.luogo);
+  if(tappeReali.length){
+    tappeData = [tappeData[0], ...tappeReali.map(e=>({data:e.dataBreve,luogo:e.luogo,comune:e.luogoComune}))];
+    buildTimeline(tappeData);
+  }
 
   document.getElementById('todayListDesktop').innerHTML = oggi.map(todayRowHtml).join('') || '<div style="font-size:.82rem;color:var(--muted);padding:8px 0">Nessuna serata in programma al momento.</div>';
   document.getElementById('todayListDrawer').innerHTML = oggi.map(todayRowHtml).join('') || '<div style="font-size:.82rem;color:var(--muted);padding:8px 0">Nessuna serata in programma al momento.</div>';
@@ -548,7 +592,7 @@ function buildFilmProssimi(filmiCalendario, allFilms){
   renderFilmGrid();
 }
 
-const tappeData = [
+let tappeData = [
   { data:"Partenza", luogo:"Cinema Multisala Teatro", comune:"Mendrisio" },
   { data:"12 lug", luogo:"Parco Ciani", comune:"Lugano" },
   { data:"18 lug", luogo:"Piazza del Mercato", comune:"Mendrisio" },
@@ -603,8 +647,8 @@ async function loadCinetourHome(){
       sponsor = home.sponsor.filter(s=>s&&(s.nome||s.logo));
       renderSponsorGrid();
     }
-    if(Array.isArray(home.social)&&home.social.some(s=>s&&s.icona)){
-      social = home.social.filter(s=>s&&s.icona);
+    if(Array.isArray(home.social)&&home.social.some(s=>s&&(s.piattaforma||s.icona)&&s.link)){
+      social = home.social.filter(s=>s&&(s.piattaforma||s.icona)&&s.link);
       renderSocialRow();
     }
   }catch(err){ console.error('Errore caricamento homepage Cinetour', err); }
@@ -642,46 +686,37 @@ function renderSponsorGrid(){
 }
 renderSponsorGrid();
 
+// Icone reali dei social (CDN Simple Icons — loghi veri, non emoji
+// generiche che non c'entrano col brand); email/web non sono un brand,
+// restano due SVG disegnate a mano
+const SOCIAL_ICON_CDN = {instagram:"instagram",facebook:"facebook",youtube:"youtube",tiktok:"tiktok",whatsapp:"whatsapp",twitter:"x",linkedin:"linkedin"};
+function socialIconHtml(piattaforma){
+  if(SOCIAL_ICON_CDN[piattaforma]) return `<img src="https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/${SOCIAL_ICON_CDN[piattaforma]}.svg" alt="">`;
+  if(piattaforma==='email') return '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="5" width="18" height="14" rx="2" stroke="#4a4540" stroke-width="2"/><path d="m4 7 8 6 8-6" stroke="#4a4540" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  if(piattaforma==='web') return '<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="9" stroke="#4a4540" stroke-width="2"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18" stroke="#4a4540" stroke-width="2"/></svg>';
+  return '';
+}
 function renderSocialRow(){
   document.getElementById('socialRow').innerHTML = social
-    .filter(s => s && s.icona)
-    .map(s => `<a class="social-link" href="${esc(s.link||'#')}"${s.link&&s.link!=='#'?' target="_blank" rel="noopener"':''}>${esc(s.icona)}</a>`)
+    .map(s => ({ ...s, iconHtml: s.piattaforma ? socialIconHtml(s.piattaforma) : (s.icona||'') }))
+    .filter(s => s && s.iconHtml && s.link)
+    .map(s => `<a class="social-link" href="${esc(s.link)}"${s.link!=='#'?' target="_blank" rel="noopener"':''}>${s.iconHtml}</a>`)
     .join('');
 }
 renderSocialRow();
 
 // ── Timeline ondulata: due onde sovrapposte (una ampia per le
 // "montagne", una piccola per increspare le "pianure"), disegnata con
-// un'animazione stroke-dashoffset all'ingresso ─────────────────────────
+// un'animazione stroke-dashoffset all'ingresso — ricostruibile: parte
+// coi dati statici d'esempio, si rifà con le tappe reali del calendario
+// appena arrivano (vedi loadEventi)
 const STOP_W = 220;
-const tlWidth = tappeData.length * STOP_W;
 function waveY(x){
   const y = 70 + 38 * Math.sin(x / 190) + 16 * Math.sin(x / 60 + 1.3);
   return Math.max(18, Math.min(122, y));
 }
-let wavePathD = '';
-for (let x = 0; x <= tlWidth; x += 8) wavePathD += (x === 0 ? 'M' : 'L') + x + ',' + waveY(x).toFixed(1) + ' ';
-const waveLen = Math.round(tlWidth * 1.2);
-
-const tlWaveZone = document.getElementById('tlWaveZone');
-const tlSvg = document.getElementById('tlSvg');
-const tlPath = document.getElementById('tlPath');
-const tlLabels = document.getElementById('tlLabels');
-tlWaveZone.style.width = tlWidth + 'px';
-tlSvg.setAttribute('width', tlWidth);
-tlSvg.setAttribute('height', 140);
-tlPath.setAttribute('d', wavePathD);
-tlPath.style.strokeDasharray = waveLen;
-tlPath.style.strokeDashoffset = waveLen;
-
-// Sfondo in stile mappa topografica, puramente decorativo: anelli di
-// curve di livello (colline) invece di onde orizzontali — chiuse e
-// concentriche, così si leggono come rilievo e non come "mare" — più
-// laghetti e casette vicino alle tappe che li hanno davvero (lungolago,
-// piazze dei paesi), tutto molto tenue per restare sotto la linea rossa
-const tlContours = document.getElementById('tlContours');
 const svgNS = 'http://www.w3.org/2000/svg';
-function addPath(d, { fill = 'none', stroke = 'none', strokeWidth = 1, opacity = 1 } = {}) {
+function addPath(tlContours, d, { fill = 'none', stroke = 'none', strokeWidth = 1, opacity = 1 } = {}) {
   const p = document.createElementNS(svgNS, 'path');
   p.setAttribute('d', d);
   p.setAttribute('fill', fill);
@@ -702,138 +737,145 @@ function ringPath(cx, cy, rx, ry, jitter) {
   }
   return 'M' + pts.map(p => p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' L') + ' Z';
 }
-function hillContours(cx, cy) {
-  [[34, 22], [24, 15], [14, 9]].forEach(([rx, ry], i) => {
-    addPath(ringPath(cx, cy, rx, ry, 0.12), { stroke: '#0b0b0b', strokeWidth: 1, opacity: 0.1 });
+function hillContours(tlContours, cx, cy) {
+  [[34, 22], [24, 15], [14, 9]].forEach(([rx, ry]) => {
+    addPath(tlContours, ringPath(cx, cy, rx, ry, 0.12), { stroke: '#0b0b0b', strokeWidth: 1, opacity: 0.1 });
   });
 }
-function lakeBlob(cx, cy) {
-  addPath(ringPath(cx, cy, 26, 14, 0.18), { fill: '#7a9ba8', opacity: 0.16 });
-}
-function houseCluster(cx, cy, offsets) {
+function houseCluster(tlContours, cx, cy, offsets) {
   offsets.forEach(([dx, dy]) => {
     const x = cx + dx, y = cy + dy, w = 9, h = 7;
     const d = `M${x-w/2},${y+h/2} L${x-w/2},${y-h/2+2} L${x},${y-h/2-4} L${x+w/2},${y-h/2+2} L${x+w/2},${y+h/2} Z`;
-    addPath(d, { fill: '#0b0b0b', opacity: 0.12 });
+    addPath(tlContours, d, { fill: '#0b0b0b', opacity: 0.12 });
   });
 }
-// Una stradina che tocca qualche punto intermedio (jitter verticale
-// leggero), non una retta — collega i nuclei come farebbe una mappa
-function roadPath(x1, y1, x2, y2) {
-  const midX = (x1 + x2) / 2, midY = (y1 + y2) / 2 + (Math.sin(x1 * 0.05) * 8);
-  return `M${x1},${y1} Q${midX},${midY} ${x2},${y2}`;
-}
-
-// Colline sparse, atmosferiche
-hillContours(STOP_W * 0.5, 50);
-hillContours(STOP_W * 1.8, 112);
-hillContours(STOP_W * 2.6, 95);
-hillContours(STOP_W * 4.1, 108);
-hillContours(STOP_W * 5.4, 45);
-hillContours(STOP_W * 6.3, 100);
-
-// Laghetti vicino alle tappe sul lago: Lido comunale (Locarno, 4) e
-// Lungolago (Ascona, 6)
-const lakeAt = {};
-[4, 6].forEach(i => {
-  const cx = i * STOP_W + STOP_W / 2 + 60, cy = 115;
-  lakeBlob(cx, cy);
-  lakeAt[i] = [cx, cy];
-});
-
-// Nuclei abitati: ogni tappa ha vicino un piccolo gruppo di case — più
-// grande per le piazze dei paesi, più piccolo (frazione) per le altre
-const bigVillageOffsets = [[-22, 6], [-8, -8], [8, -10], [22, 5], [0, 10]];
-const hamletOffsets = [[-6, 2], [6, -3]];
-const houseAt = {};
-tappeData.forEach((t, i) => {
-  const cx = i * STOP_W + STOP_W / 2 - 55, cy = 30;
-  const isPiazza = [2, 5, 7].includes(i);
-  houseCluster(cx, cy, isPiazza ? bigVillageOffsets : hamletOffsets);
-  houseAt[i] = [cx, cy];
-});
-
-// La ferrovia segue esattamente la stessa strada che collega i nuclei
-// abitati (non una linea a parte): campiono la stessa curva usata per
-// la strada, cosi il trenino passa proprio dove ci sono le case
 function quadPoint(t, x1, y1, mx, my, x2, y2) {
   const u = 1 - t;
   return [u*u*x1 + 2*u*t*mx + t*t*x2, u*u*y1 + 2*u*t*my + t*t*y2];
 }
-let railPts = [];
-for (let i = 0; i < tappeData.length - 1; i++) {
-  const [x1, y1] = houseAt[i], [x2, y2] = houseAt[i + 1];
-  const mx = (x1 + x2) / 2, my = (y1 + y2) / 2 + (Math.sin(x1 * 0.05) * 8);
-  const steps = 16;
-  for (let s = (i === 0 ? 0 : 1); s <= steps; s++) railPts.push(quadPoint(s / steps, x1, y1, mx, my, x2, y2));
-}
-const railD = railPts.map((p, i) => (i === 0 ? 'M' : 'L') + p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ');
-document.getElementById('tlRailPath').setAttribute('d', railD);
-addPath(railD, { stroke: '#0b0b0b', strokeWidth: 1, opacity: 0.16 });
-// Traversine perpendicolari alla direzione locale del binario
-for (let i = 1; i < railPts.length - 1; i += 2) {
-  const [x, y] = railPts[i];
-  const [px, py] = railPts[i - 1], [nx, ny] = railPts[i + 1];
-  const dx = nx - px, dy = ny - py;
-  const len = Math.hypot(dx, dy) || 1;
-  const tx = -dy / len, ty = dx / len; // normale perpendicolare
-  addPath(`M${(x-tx*4).toFixed(1)},${(y-ty*4).toFixed(1)} L${(x+tx*4).toFixed(1)},${(y+ty*4).toFixed(1)}`, { stroke: '#0b0b0b', strokeWidth: 1, opacity: 0.16 });
-}
-document.getElementById('tlTrain').setAttribute('opacity', '0.55');
 
-// Diramazioni stradali separate verso i laghetti (non la ferrovia)
-[4, 6].forEach(i => {
-  if (lakeAt[i] && houseAt[i]) {
-    addPath(roadPath(houseAt[i][0], houseAt[i][1], lakeAt[i][0], lakeAt[i][1]), { stroke: '#0b0b0b', strokeWidth: 1, opacity: 0.1 });
+let _tlScrollHandler = null;
+function buildTimeline(data){
+  const tlWaveZone = document.getElementById('tlWaveZone');
+  const tlSvg = document.getElementById('tlSvg');
+  const tlPath = document.getElementById('tlPath');
+  const tlLabels = document.getElementById('tlLabels');
+  const tlContours = document.getElementById('tlContours');
+  const tlTrack = document.getElementById('tlTrack');
+
+  // Pulizia prima di ricostruire (richiamata di nuovo quando arrivano le
+  // tappe reali): niente sfondo/puntini/etichette/listener duplicati
+  tlContours.innerHTML = '';
+  Array.from(tlWaveZone.querySelectorAll('.tl-dot')).forEach(d => d.remove());
+  tlLabels.innerHTML = '';
+  if (_tlScrollHandler) tlTrack.removeEventListener('scroll', _tlScrollHandler);
+
+  const tlWidth = data.length * STOP_W;
+  let wavePathD = '';
+  for (let x = 0; x <= tlWidth; x += 8) wavePathD += (x === 0 ? 'M' : 'L') + x + ',' + waveY(x).toFixed(1) + ' ';
+  const waveLen = Math.round(tlWidth * 1.2);
+
+  tlWaveZone.style.width = tlWidth + 'px';
+  tlSvg.setAttribute('width', tlWidth);
+  tlSvg.setAttribute('height', 140);
+  tlPath.setAttribute('d', wavePathD);
+  tlPath.style.strokeDasharray = waveLen;
+  tlPath.style.strokeDashoffset = waveLen;
+
+  // Colline sparse, atmosferiche — le posizioni erano tarate su ~7 tappe
+  // (il set statico d'esempio): con un calendario reale più corto vanno
+  // scalate di conseguenza, altrimenti finiscono fuori dalla larghezza
+  // reale della pista (sembra tutto "sparito"/disallineato)
+  const hillScale = data.length / 7;
+  [[0.5,50],[1.8,112],[2.6,95],[4.1,108],[5.4,45],[6.3,100]].forEach(([mult,cy]) => {
+    hillContours(tlContours, STOP_W * mult * hillScale, cy);
+  });
+
+  // Nuclei abitati: ogni tappa ha vicino un piccolo gruppo di case — più
+  // grande per la prima (sede/Cinema Multisala Teatro), più piccolo per
+  // le altre (non conosciamo la dimensione reale di ogni luogo del
+  // calendario, quindi non proviamo a indovinarla)
+  const bigVillageOffsets = [[-22, 6], [-8, -8], [8, -10], [22, 5], [0, 10]];
+  const hamletOffsets = [[-6, 2], [6, -3]];
+  const houseAt = {};
+  data.forEach((t, i) => {
+    const cx = i * STOP_W + STOP_W / 2 - 55, cy = 30;
+    houseCluster(tlContours, cx, cy, i === 0 ? bigVillageOffsets : hamletOffsets);
+    houseAt[i] = [cx, cy];
+  });
+
+  // La ferrovia segue esattamente la stessa strada che collega i nuclei
+  // abitati (non una linea a parte): campiono la stessa curva usata per
+  // la strada, così il trenino passa proprio dove ci sono le case
+  let railPts = [];
+  for (let i = 0; i < data.length - 1; i++) {
+    const [x1, y1] = houseAt[i], [x2, y2] = houseAt[i + 1];
+    const mx = (x1 + x2) / 2, my = (y1 + y2) / 2 + (Math.sin(x1 * 0.05) * 8);
+    const steps = 16;
+    for (let s = (i === 0 ? 0 : 1); s <= steps; s++) railPts.push(quadPoint(s / steps, x1, y1, mx, my, x2, y2));
   }
-});
+  const railD = railPts.map((p, i) => (i === 0 ? 'M' : 'L') + p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ');
+  document.getElementById('tlRailPath').setAttribute('d', railD);
+  addPath(tlContours, railD, { stroke: '#0b0b0b', strokeWidth: 1, opacity: 0.16 });
+  // Traversine perpendicolari alla direzione locale del binario
+  for (let i = 1; i < railPts.length - 1; i += 2) {
+    const [x, y] = railPts[i];
+    const [px, py] = railPts[i - 1], [nx, ny] = railPts[i + 1];
+    const dx = nx - px, dy = ny - py;
+    const len = Math.hypot(dx, dy) || 1;
+    const tx = -dy / len, ty = dx / len; // normale perpendicolare
+    addPath(tlContours, `M${(x-tx*4).toFixed(1)},${(y-ty*4).toFixed(1)} L${(x+tx*4).toFixed(1)},${(y+ty*4).toFixed(1)}`, { stroke: '#0b0b0b', strokeWidth: 1, opacity: 0.16 });
+  }
+  document.getElementById('tlTrain').setAttribute('opacity', '0.55');
 
-let activeIndex = 2;
-const dots = tappeData.map((t, i) => {
-  const dot = document.createElement('div');
-  dot.className = 'tl-dot';
-  tlWaveZone.appendChild(dot);
-  return dot;
-});
-tlLabels.innerHTML = tappeData.map((t,i) => `
-  <div class="tl-stop" data-i="${i}">
-    <div class="d">${esc(t.data)}</div>
-    <div class="l">${esc(t.luogo)}</div>
-    <div class="c">${esc(t.comune)}</div>
-  </div>
-`).join('');
-const stopEls = Array.from(tlLabels.children);
-
-function renderTimeline(){
-  tappeData.forEach((t, i) => {
-    const active = i === activeIndex;
-    const dotX = i * STOP_W + STOP_W / 2;
-    const dotY = waveY(dotX);
-    const dot = dots[i];
-    dot.style.left = dotX + 'px';
-    dot.style.top = dotY + 'px';
-    const size = active ? 16 : 10;
-    dot.style.width = size + 'px';
-    dot.style.height = size + 'px';
-    dot.style.background = active ? '#e9342f' : '#9c968e';
-    dot.style.opacity = active ? 1 : .4;
-    dot.style.transform = `translate(-50%,-50%) scale(${active ? 1.3 : 1})`;
-    stopEls[i].style.opacity = active ? 1 : .4;
+  let activeIndex = Math.min(2, data.length - 1);
+  const dots = data.map(() => {
+    const dot = document.createElement('div');
+    dot.className = 'tl-dot';
+    tlWaveZone.appendChild(dot);
+    return dot;
   });
+  tlLabels.innerHTML = data.map((t,i) => `
+    <div class="tl-stop" data-i="${i}">
+      <div class="d">${esc(t.data)}</div>
+      <div class="l">${esc(t.luogo)}</div>
+      <div class="c">${esc(t.comune)}</div>
+    </div>
+  `).join('');
+  const stopEls = Array.from(tlLabels.children);
+
+  function renderTimelineDots(){
+    data.forEach((t, i) => {
+      const active = i === activeIndex;
+      const dotX = i * STOP_W + STOP_W / 2;
+      const dotY = waveY(dotX);
+      const dot = dots[i];
+      dot.style.left = dotX + 'px';
+      dot.style.top = dotY + 'px';
+      const size = active ? 16 : 10;
+      dot.style.width = size + 'px';
+      dot.style.height = size + 'px';
+      dot.style.background = active ? '#e9342f' : '#9c968e';
+      dot.style.opacity = active ? 1 : .4;
+      dot.style.transform = `translate(-50%,-50%) scale(${active ? 1.3 : 1})`;
+      stopEls[i].style.opacity = active ? 1 : .4;
+    });
+  }
+  renderTimelineDots();
+
+  _tlScrollHandler = () => {
+    const center = tlTrack.scrollLeft + tlTrack.clientWidth / 2;
+    let nearest = 0, minDist = Infinity;
+    stopEls.forEach((el, i) => {
+      const c = el.offsetLeft + el.offsetWidth / 2;
+      const dist = Math.abs(c - center);
+      if (dist < minDist) { minDist = dist; nearest = i; }
+    });
+    if (nearest !== activeIndex) { activeIndex = nearest; renderTimelineDots(); }
+  };
+  tlTrack.addEventListener('scroll', _tlScrollHandler);
 }
-renderTimeline();
-
-const tlTrack = document.getElementById('tlTrack');
-tlTrack.addEventListener('scroll', () => {
-  const center = tlTrack.scrollLeft + tlTrack.clientWidth / 2;
-  let nearest = 0, minDist = Infinity;
-  stopEls.forEach((el, i) => {
-    const c = el.offsetLeft + el.offsetWidth / 2;
-    const dist = Math.abs(c - center);
-    if (dist < minDist) { minDist = dist; nearest = i; }
-  });
-  if (nearest !== activeIndex) { activeIndex = nearest; renderTimeline(); }
-});
+buildTimeline(tappeData);
 
 // ── Cassetto mobile a 3 schede ──────────────────────────────────────
 const drawer = document.getElementById('drawer');
@@ -877,6 +919,46 @@ document.getElementById('newsletterForm').addEventListener('submit', async (e) =
     btn.disabled = false;
   }
 });
+
+// ── Titolo hero su mobile: "CineTour.ch" non ha spazi (nessun a capo
+// possibile), quindi niente clamp() in vw può garantire che riempia
+// esattamente la larghezza disponibile — si misura la resa reale e si
+// scala il font-size di conseguenza, invece di indovinare un valore fisso
+function fitHeroTitle(){
+  const el = document.querySelector('.hero-brand .mega');
+  const container = document.querySelector('.hero-brand');
+  if(!el || !container) return;
+  if(window.innerWidth > 780){ el.style.fontSize = ''; el.style.display = ''; return; }
+  el.style.fontSize = '';
+  // h1 è un blocco a piena larghezza: scrollWidth misurava la larghezza
+  // del box (= già quella del contenitore), non quella reale del testo.
+  // inline-block lo fa restringere al contenuto solo per la misura
+  el.style.display = 'inline-block';
+  const containerWidth = container.clientWidth;
+  const textWidth = el.scrollWidth;
+  if(!textWidth || !containerWidth){ el.style.display = ''; return; }
+  const currentFontSize = parseFloat(getComputedStyle(el).fontSize);
+  el.style.fontSize = (currentFontSize * (containerWidth / textWidth)) + 'px';
+  el.style.display = '';
+}
+fitHeroTitle();
+window.addEventListener('resize', fitHeroTitle);
+
+// ── Menu mobile a comparsa (hamburger) ──────────────────────────────
+const navToggle = document.getElementById('navToggle');
+const mainNav = document.getElementById('mainNav');
+if(navToggle && mainNav){
+  navToggle.addEventListener('click', () => {
+    const open = mainNav.classList.toggle('open');
+    navToggle.textContent = open ? '✕' : '☰';
+    navToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+  mainNav.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+    mainNav.classList.remove('open');
+    navToggle.textContent = '☰';
+    navToggle.setAttribute('aria-expanded', 'false');
+  }));
+}
 </script>
 </body>
 </html>
