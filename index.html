@@ -181,7 +181,8 @@
     .film-grid .g { font-size:.74rem; color: var(--muted-dark) }
 
     .sponsor-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:16px }
-    .sponsor-tile { background: var(--white); border:1px solid rgba(11,11,11,.12); border-radius:10px; padding:26px 16px; display:flex; align-items:center; justify-content:center; text-align:center; font-size:.84rem; font-weight:700; color:#4a4540 }
+    .sponsor-tile { background: var(--white); border:1px solid rgba(11,11,11,.12); border-radius:10px; padding:26px 16px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; text-align:center; font-size:.84rem; font-weight:700; color:#4a4540 }
+    .sponsor-tile img { max-width:100%; max-height:40px; object-fit:contain; display:block }
 
     .newsletter-box { background: var(--surf); border:1px solid rgba(255,253,248,.14); border-radius:16px; padding:52px max(5vw,36px); display:flex; flex-wrap:wrap; gap:28px; align-items:center; justify-content:space-between }
     .newsletter-box .copy { max-width:440px }
@@ -359,12 +360,7 @@
     <div class="eyebrow-amb" style="justify-content:center"><span></span>Seguici</div>
     <h2 class="title-amb" style="margin-bottom:16px">Cinetour è anche sulla tua <span class="accent">piattaforma</span> preferita.</h2>
     <p style="margin:0 auto;max-width:560px;font-size:.98rem;color:#d8d6d0;line-height:1.65">Scopri Cinetour sui tuoi canali social preferiti! Seguici per rimanere aggiornato su tutte le novità, gli eventi e le esclusive anteprime cinematografiche. Partecipa alla nostra community online e non perderti mai un momento di magia cinematografica!</p>
-    <div class="social-row">
-      <a class="social-link" href="#" aria-label="Instagram">📷</a>
-      <a class="social-link" href="#" aria-label="Facebook">📘</a>
-      <a class="social-link" href="#" aria-label="YouTube">▶️</a>
-      <a class="social-link" href="#" aria-label="TikTok">🎵</a>
-    </div>
+    <div class="social-row" id="socialRow"></div>
   </div>
 
   <footer class="site-footer" id="contatti">
@@ -406,7 +402,7 @@
 
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import {getFirestore,collection,getDocs,addDoc,query,where,serverTimestamp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import {getFirestore,collection,getDocs,addDoc,doc,getDoc,query,where,serverTimestamp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 const FB={apiKey:"AIzaSyCYM1tZsUI-pz3D0J6EWEMqyDxrk9hep1o",authDomain:"cinemanager-4c67c.firebaseapp.com",projectId:"cinemanager-4c67c",storageBucket:"cinemanager-4c67c.firebasestorage.app",messagingSenderId:"730874662111",appId:"1:730874662111:web:8a4a501dd81644bc96ed6a"};
 const fbApp=initializeApp(FB);
 const db=getFirestore(fbApp);
@@ -449,6 +445,11 @@ function buildEvento(booking, dateEntry, filmsById){
 let eventi=[], oggi=[];
 async function loadEventi(){
   let raw=[];
+  // Film visti nel calendario pubblicato (per "I film in programma" sotto)
+  // — solo quelli collegati all'archivio (filmId), mappati per id così lo
+  // stesso film in più tappe compare una volta sola, nell'ordine della
+  // prima data trovata
+  const filmiCalendario=new Map();
   try{
     const [bSnap,fSnap]=await Promise.all([
       getDocs(query(collection(db,'bookings'),where('type','==','openair'))),
@@ -459,9 +460,15 @@ async function loadEventi(){
     bSnap.docs.forEach(docSnap=>{
       const b={id:docSnap.id,...docSnap.data()};
       (b.dates||[]).forEach(dateEntry=>{
-        if(dateEntry.cinetour&&dateEntry.cinetour.pubblicato) raw.push(buildEvento(b,dateEntry,filmsById));
+        if(dateEntry.cinetour&&dateEntry.cinetour.pubblicato){
+          raw.push(buildEvento(b,dateEntry,filmsById));
+          if(dateEntry.dossier?.status!=='annullata'&&b.filmId&&filmsById[b.filmId]&&!filmiCalendario.has(b.filmId)){
+            filmiCalendario.set(b.filmId,filmsById[b.filmId]);
+          }
+        }
       });
     });
+    buildFilmProssimi(filmiCalendario,Object.values(filmsById));
   }catch(err){ console.error('Errore caricamento calendario Cinetour', err); }
   eventi=raw.sort((a,b)=>a.data.localeCompare(b.data)||a.ora.localeCompare(b.ora));
   const today=todayStr();
@@ -516,12 +523,30 @@ const luoghi = [
   { nome:"Lido comunale", comune:"Locarno", note:"Vista sul Lago Maggiore", img:"img/sample-up.jpg" }
 ];
 
-const filmProssimi = [
+let filmProssimi = [
   { titolo:"Grease", genere:"Musical", anno:"1978", poster:"img/sample-up.jpg" },
   { titolo:"La La Land", genere:"Musical", anno:"2016", poster:"img/sample-postino.jpg" },
   { titolo:"Ratatouille", genere:"Animazione", anno:"2007", poster:"img/sample-cinema-paradiso.jpg" },
   { titolo:"Jurassic Park", genere:"Avventura", anno:"1993", poster:"img/hero-bg.jpg" }
 ];
+// "I film in programma": prima i film che compaiono davvero nel calendario
+// pubblicato; se sono meno di 4, completa con film già disponibili per la
+// scelta Open Air nell'anno in corso (stessa soglia di oaRenderFilmOA in
+// gestione.html: data propria "oaFrom", o uscita da almeno 2 mesi)
+function buildFilmProssimi(filmiCalendario, allFilms){
+  const toCard=f=>({titolo:f.title||'',genere:f.genre||'',anno:(f.release||'').slice(0,4),poster:f.poster||'img/hero-bg.jpg'});
+  const cards=Array.from(filmiCalendario.values()).map(toCard);
+  if(cards.length<4){
+    const oggi2=todayStr();
+    const soglia=new Date(); soglia.setMonth(soglia.getMonth()-2);
+    const sogliaStr=soglia.toISOString().slice(0,10);
+    const usedIds=new Set(filmiCalendario.keys());
+    const abilitati=(allFilms||[]).filter(f=>f.openAir&&!usedIds.has(f.id)&&(f.oaFrom?f.oaFrom<=oggi2:(f.release&&f.release<=sogliaStr)));
+    for(const f of abilitati){ if(cards.length>=4)break; cards.push(toCard(f)); }
+  }
+  if(cards.length)filmProssimi=cards;
+  renderFilmGrid();
+}
 
 const tappeData = [
   { data:"Partenza", luogo:"Cinema Multisala Teatro", comune:"Mendrisio" },
@@ -534,20 +559,57 @@ const tappeData = [
   { data:"15 ago", luogo:"Piazza Collegiata", comune:"Bellinzona" }
 ];
 
-const sponsor = ["Comune di Lugano","Migros Ticino","RSI","Banca dello Stato","Repubblica e Cantone Ticino","Pro Ticino"];
-const social = ["📷","📘","▶️","🎵"];
+let sponsor = ["Comune di Lugano","Migros Ticino","RSI","Banca dello Stato","Repubblica e Cantone Ticino","Pro Ticino"];
+let social = [
+  { icona:"📷", link:"#" },
+  { icona:"📘", link:"#" },
+  { icona:"▶️", link:"#" },
+  { icona:"🎵", link:"#" }
+];
 
 function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
 loadEventi();
 
-document.getElementById('recapGrid').innerHTML = serateRecap.map(s => `
-  <div class="recap-card">
-    <img src="${esc(s.img)}" alt="" loading="lazy">
-    <div class="recap-scrim"></div>
-    <div class="recap-caption"><div class="t">${esc(s.titolo)}</div><div class="m">${esc(s.luogo)} · ${esc(s.data)}</div></div>
-  </div>
-`).join('');
+function renderRecapGrid(){
+  document.getElementById('recapGrid').innerHTML = serateRecap.map(s => `
+    <div class="recap-card">
+      <img src="${esc(s.img)}" alt="" loading="lazy">
+      <div class="recap-scrim"></div>
+      <div class="recap-caption"><div class="t">${esc(s.titolo)}</div><div class="m">${esc(s.luogo)} · ${esc(s.data)}</div></div>
+    </div>
+  `).join('');
+}
+renderRecapGrid();
+
+// ── Homepage gestita dall'admin (settings/cinetourHome, pubblico): header
+// e "Serate magiche" — se non ancora configurata restano i placeholder
+// sopra, sovrascritti qui appena arrivano dati reali ──────────────────
+async function loadCinetourHome(){
+  try{
+    const snap = await getDoc(doc(db,'settings','cinetourHome'));
+    if(!snap.exists())return;
+    const home = snap.data();
+    if(home.heroImg){
+      document.querySelector('.hero-bg').src = home.heroImg;
+    }
+    if(Array.isArray(home.serateMagiche)&&home.serateMagiche.some(s=>s&&s.img)){
+      serateRecap = home.serateMagiche
+        .filter(s=>s&&s.img)
+        .map(s=>({titolo:s.titolo||'',luogo:s.luogo||'',data:s.data||'',img:s.img}));
+      renderRecapGrid();
+    }
+    if(Array.isArray(home.sponsor)&&home.sponsor.some(s=>s&&(s.nome||s.logo))){
+      sponsor = home.sponsor.filter(s=>s&&(s.nome||s.logo));
+      renderSponsorGrid();
+    }
+    if(Array.isArray(home.social)&&home.social.some(s=>s&&s.icona)){
+      social = home.social.filter(s=>s&&s.icona);
+      renderSocialRow();
+    }
+  }catch(err){ console.error('Errore caricamento homepage Cinetour', err); }
+}
+loadCinetourHome();
 
 document.getElementById('luogoGrid').innerHTML = luoghi.map(l => `
   <div class="luogo-card">
@@ -559,8 +621,11 @@ document.getElementById('luogoGrid').innerHTML = luoghi.map(l => `
 function filmCardHtml(f, small){
   return `<div><img src="${esc(f.poster)}" alt="" loading="lazy">${small ? `<div class="t">${esc(f.titolo)}</div>` : `<div class="t">${esc(f.titolo)}</div><div class="g">${esc(f.genere)} · ${esc(f.anno)}</div>`}</div>`;
 }
-document.getElementById('filmGrid').innerHTML = filmProssimi.map(f => filmCardHtml(f,false)).join('');
-document.getElementById('drawerFilm').innerHTML = filmProssimi.map(f => filmCardHtml(f,true)).join('');
+function renderFilmGrid(){
+  document.getElementById('filmGrid').innerHTML = filmProssimi.map(f => filmCardHtml(f,false)).join('');
+  document.getElementById('drawerFilm').innerHTML = filmProssimi.map(f => filmCardHtml(f,true)).join('');
+}
+renderFilmGrid();
 
 document.getElementById('drawerLuogo').innerHTML = luoghi.map(l => `
   <div class="drawer-luogo-row">
@@ -569,7 +634,21 @@ document.getElementById('drawerLuogo').innerHTML = luoghi.map(l => `
   </div>
 `).join('');
 
-document.getElementById('sponsorGrid').innerHTML = sponsor.map(n => `<div class="sponsor-tile">${esc(n)}</div>`).join('');
+function renderSponsorGrid(){
+  document.getElementById('sponsorGrid').innerHTML = sponsor.map(s => {
+    if(typeof s==='string') return `<div class="sponsor-tile">${esc(s)}</div>`;
+    return `<div class="sponsor-tile">${s.logo?`<img src="${esc(s.logo)}" alt="${esc(s.nome||'')}">`:''}${s.nome?`<span>${esc(s.nome)}</span>`:''}</div>`;
+  }).join('');
+}
+renderSponsorGrid();
+
+function renderSocialRow(){
+  document.getElementById('socialRow').innerHTML = social
+    .filter(s => s && s.icona)
+    .map(s => `<a class="social-link" href="${esc(s.link||'#')}"${s.link&&s.link!=='#'?' target="_blank" rel="noopener"':''}>${esc(s.icona)}</a>`)
+    .join('');
+}
+renderSocialRow();
 
 // ── Timeline ondulata: due onde sovrapposte (una ampia per le
 // "montagne", una piccola per increspare le "pianure"), disegnata con
