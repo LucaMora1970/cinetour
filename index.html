@@ -202,10 +202,7 @@
        inferiore con copyright e link ───────────────────────────────── */
     footer.site-footer { padding:70px max(5vw,20px) 40px; border-top:1px solid rgba(255,253,248,.14) }
     .footer-top { width:min(100%,1200px); margin-inline:auto; display:flex; flex-direction:column; align-items:center; gap:28px; text-align:center }
-    .footer-logo { display:block; width:44px; margin-bottom:6px }
-    .footer-logo img { display:block; width:100%; height:auto }
-    .footer-title { margin:0; max-width:420px; font-size:clamp(1.3rem,2.2vw,1.9rem); line-height:1.05; letter-spacing:-.02em; text-transform:uppercase; color:#8a8a8a }
-    .footer-title .accent { color: var(--red) }
+    .footer-logo-img { display:block; height:36px; width:auto; margin-bottom:6px }
     .footer-pills { display:flex; flex-wrap:wrap; justify-content:center; align-items:stretch }
     .footer-pill { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; border:0; background:transparent; color: var(--white); text-decoration:none; font:inherit; padding:4px 22px; cursor:pointer; text-align:center; transition:opacity .2s }
     .footer-pill:hover { opacity:.75 }
@@ -372,8 +369,7 @@
 
   <footer class="site-footer" id="contatti">
     <div class="footer-top">
-      <span class="footer-logo" aria-hidden="true"><img src="img/mark.png" alt=""></span>
-      <h3 class="footer-title">Cinetour<span class="accent">.ch</span></h3>
+      <img class="footer-logo-img" src="img/logo-light.png" alt="Cinetour.ch">
       <div class="footer-pills">
         <a class="footer-pill" href="#calendario">
           <svg class="footer-pill-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2" stroke="currentColor" stroke-width="2"/><path d="M3 10h18M8 3v4M16 3v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
@@ -409,22 +405,102 @@
   </footer>
 
 <script type="module">
-// Dati di esempio: in attesa del pannello admin (gestione.html → Cinetour),
-// qui restano statici ma la struttura ricalca già lo schema cinetourEventi
-// discusso per il backend, pronta per essere sostituita da una lettura
-// Firestore senza toccare il markup/i renderer qui sotto.
-const eventi = [
-  { titolo:"La vita è bella", img:"img/hero-bg.jpg", dataLabel:"Sab 12 luglio 2026", ora:"21:30", luogo:"Parco Ciani", via:"Riva Caccia 1, Lugano", mapsUrl:"https://maps.google.com/?q=Parco+Ciani+Lugano", statusLabel:"Confermato", statusDot:"#1f8a52", statusText:"#1f8a52", prezzoLabel:"Gratuito", prezzoColor:"#1f8a52", opacity:1 },
-  { titolo:"Cinema Paradiso", img:"img/sample-cinema-paradiso.jpg", dataLabel:"Ven 18 luglio 2026", ora:"21:15", luogo:"Piazza del Mercato", via:"Via Vecchio Ginnasio, Mendrisio", mapsUrl:"https://maps.google.com/?q=Piazza+del+Mercato+Mendrisio", statusLabel:"In attesa", statusDot:"#9c6a0c", statusText:"#9c6a0c", prezzoLabel:"CHF 10.–", prezzoColor:"#0b0b0b", opacity:1 },
-  { titolo:"Up", img:"img/sample-up.jpg", dataLabel:"Mer 23 luglio 2026", ora:"21:15", luogo:"Giardino Pubblico", via:"Viale Stazione, Bellinzona", mapsUrl:"https://maps.google.com/?q=Giardino+Pubblico+Bellinzona", statusLabel:"Confermato", statusDot:"#1f8a52", statusText:"#1f8a52", prezzoLabel:"Gratuito", prezzoColor:"#1f8a52", opacity:1 },
-  { titolo:"Il postino", img:"img/sample-postino.jpg", dataLabel:"Lun 28 luglio 2026", ora:"21:00", luogo:"Lido comunale", via:"Via alla Riva 16, Locarno", mapsUrl:"https://maps.google.com/?q=Lido+Locarno", statusLabel:"Annullato — maltempo", statusDot:"#9c968e", statusText:"#726c62", prezzoLabel:"Gratuito", prezzoColor:"#1f8a52", opacity:.6 }
-];
+import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {getFirestore,collection,getDocs,addDoc,query,where,serverTimestamp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+const FB={apiKey:"AIzaSyCYM1tZsUI-pz3D0J6EWEMqyDxrk9hep1o",authDomain:"cinemanager-4c67c.firebaseapp.com",projectId:"cinemanager-4c67c",storageBucket:"cinemanager-4c67c.firebasestorage.app",messagingSenderId:"730874662111",appId:"1:730874662111:web:8a4a501dd81644bc96ed6a"};
+const fbApp=initializeApp(FB);
+const db=getFirestore(fbApp);
 
-const oggi = [
-  { dataBreve:"Sab 12 lug", ora:"21:30", titolo:"La vita è bella", luogo:"Parco Ciani, Lugano", statusDot:"#1f8a52" },
-  { dataBreve:"Ven 18 lug", ora:"21:15", titolo:"Cinema Paradiso", luogo:"Piazza del Mercato, Mendrisio", statusDot:"#9c6a0c" },
-  { dataBreve:"Mer 23 lug", ora:"21:15", titolo:"Up", luogo:"Giardino Pubblico, Bellinzona", statusDot:"#1f8a52" }
-];
+// ── Calendario: una "serata" qui è una data pubblicata (dates[].cinetour.
+// pubblicato) dentro una prenotazione ☀ CineTour OA (bookings, type=
+// 'openair') — niente collezione propria: si pubblica dal Dossier di
+// quella data in gestione.html (Fase 7), non da un pannello separato.
+const GIORNI=["Dom","Lun","Mar","Mer","Gio","Ven","Sab"];
+const MESI=["gennaio","febbraio","marzo","aprile","maggio","giugno","luglio","agosto","settembre","ottobre","novembre","dicembre"];
+const MESI_ABBR=["gen","feb","mar","apr","mag","giu","lug","ago","set","ott","nov","dic"];
+function parseLocalDate(s){ const [y,m,d]=(s||'').split('-').map(Number); return new Date(y||1970,(m||1)-1,d||1); }
+function dataLabelFull(s){ const d=parseLocalDate(s); return `${GIORNI[d.getDay()]} ${d.getDate()} ${MESI[d.getMonth()]} ${d.getFullYear()}`; }
+function dataLabelBreve(s){ const d=parseLocalDate(s); return `${GIORNI[d.getDay()]} ${d.getDate()} ${MESI_ABBR[d.getMonth()]}`; }
+function todayStr(){ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+const STATO_MAP={ confermato:{label:"Confermato",dot:"#1f8a52",text:"#1f8a52"}, attesa:{label:"In attesa",dot:"#9c6a0c",text:"#9c6a0c"}, annullato:{label:"Annullato",dot:"#9c968e",text:"#726c62"} };
+function prezzoInfo(chf){ if(!chf) return {label:"Gratuito",color:"#1f8a52"}; return {label:"CHF "+Number(chf).toFixed(2).replace(/\.00$/,'')+".–",color:"#0b0b0b"}; }
+function dossierStato(dossier){ const s=dossier&&dossier.status; return s==='confermata'?'confermato':(s==='annullata'?'annullato':'attesa'); }
+function buildEvento(booking, dateEntry, filmsById){
+  const ct=dateEntry.cinetour||{};
+  const film=booking.filmId?filmsById[booking.filmId]:null;
+  const titolo=film?film.title:(booking.oaFilmTitle||booking.name||'');
+  const stato=dossierStato(dateEntry.dossier);
+  const st=STATO_MAP[stato];
+  const pr=prezzoInfo(ct.prezzoChf);
+  return {
+    bookingId:booking.id, data:dateEntry.date, stato,
+    // Card 16:9 in formato originale: ci vuole un'immagine orizzontale
+    // (backdrop), non il poster verticale — il poster resta per la pagina
+    // evento, qui solo come ultima risorsa se non c'è alcun backdrop
+    titolo, img:ct.backdropUrl||(film&&film.backdrop)||ct.posterUrl||(film&&film.poster)||"img/hero-bg.jpg",
+    dataLabel:dataLabelFull(dateEntry.date), dataBreve:dataLabelBreve(dateEntry.date), ora:dateEntry.start||'',
+    luogo:ct.luogoNome||'', via:[ct.luogoVia,ct.luogoComune].filter(Boolean).join(', '),
+    mapsUrl:ct.luogoMapsUrl||'#',
+    statusLabel:st.label, statusDot:st.dot, statusText:st.text,
+    prezzoLabel:pr.label, prezzoColor:pr.color,
+    opacity:stato==='annullato'?.6:1
+  };
+}
+let eventi=[], oggi=[];
+async function loadEventi(){
+  let raw=[];
+  try{
+    const [bSnap,fSnap]=await Promise.all([
+      getDocs(query(collection(db,'bookings'),where('type','==','openair'))),
+      getDocs(collection(db,'films'))
+    ]);
+    const filmsById={};
+    fSnap.docs.forEach(d=>{ filmsById[d.id]={id:d.id,...d.data()}; });
+    bSnap.docs.forEach(docSnap=>{
+      const b={id:docSnap.id,...docSnap.data()};
+      (b.dates||[]).forEach(dateEntry=>{
+        if(dateEntry.cinetour&&dateEntry.cinetour.pubblicato) raw.push(buildEvento(b,dateEntry,filmsById));
+      });
+    });
+  }catch(err){ console.error('Errore caricamento calendario Cinetour', err); }
+  eventi=raw.sort((a,b)=>a.data.localeCompare(b.data)||a.ora.localeCompare(b.ora));
+  const today=todayStr();
+  oggi=eventi.filter(e=>e.stato!=='annullato'&&e.data>=today).slice(0,3);
+
+  document.getElementById('todayListDesktop').innerHTML = oggi.map(todayRowHtml).join('') || '<div style="font-size:.82rem;color:var(--muted);padding:8px 0">Nessuna serata in programma al momento.</div>';
+  document.getElementById('todayListDrawer').innerHTML = oggi.map(todayRowHtml).join('') || '<div style="font-size:.82rem;color:var(--muted);padding:8px 0">Nessuna serata in programma al momento.</div>';
+
+  document.getElementById('eventGrid').innerHTML = eventi.map(ev => `
+    <div class="event-card" style="opacity:${ev.opacity}">
+      <div class="event-media">
+        <img src="${esc(ev.img)}" alt="" loading="lazy">
+        <div class="badge status"><span class="legend-dot" style="background:${ev.statusDot}"></span><span style="color:${ev.statusText}">${esc(ev.statusLabel)}</span></div>
+        <div class="badge price" style="background:${ev.prezzoColor}">${esc(ev.prezzoLabel)}</div>
+      </div>
+      <div class="event-body">
+        <div class="event-title">${esc(ev.titolo)}</div>
+        <div class="event-meta">
+          <div class="row"><span class="ico">📅</span>${esc(ev.dataLabel)} · ${esc(ev.ora)}</div>
+          <div class="row place"><span class="ico">📍</span><span>${esc(ev.luogo)}<br><span style="color:var(--muted);font-size:.8rem">${esc(ev.via)}</span></span></div>
+        </div>
+        <div class="event-foot">
+          <a href="evento.html?b=${encodeURIComponent(ev.bookingId)}&d=${encodeURIComponent(ev.data)}" class="details">Vedi dettagli →</a>
+          <a class="maps" href="${esc(ev.mapsUrl)}" target="_blank" rel="noopener">Apri in Maps ↗</a>
+        </div>
+      </div>
+    </div>
+  `).join('') || '<div style="color:var(--muted);font-size:.9rem">Nessuna serata pubblicata al momento — torna a trovarci presto.</div>';
+}
+
+function todayRowHtml(o){
+  return `<a href="evento.html?b=${encodeURIComponent(o.bookingId)}&d=${encodeURIComponent(o.data)}" class="today-row">
+    <div class="today-date"><div class="d">${esc(o.dataBreve)}</div><div class="t">${esc(o.ora)}</div></div>
+    <div class="today-body">
+      <div class="today-top"><span class="today-title">${esc(o.titolo)}</span><span class="today-dot" style="background:${o.statusDot}"></span></div>
+      <div class="today-place">${esc(o.luogo)}${o.via?', '+esc(o.via):''}</div>
+    </div>
+  </a>`;
+}
 
 const serateRecap = [
   { titolo:"Mamma Mia!", luogo:"Piazza Grande, Bellinzona", data:"3 luglio", img:"img/sample-cinema-paradiso.jpg" },
@@ -448,6 +524,7 @@ const filmProssimi = [
 ];
 
 const tappeData = [
+  { data:"Partenza", luogo:"Cinema Multisala Teatro", comune:"Mendrisio" },
   { data:"12 lug", luogo:"Parco Ciani", comune:"Lugano" },
   { data:"18 lug", luogo:"Piazza del Mercato", comune:"Mendrisio" },
   { data:"23 lug", luogo:"Giardino Pubblico", comune:"Bellinzona" },
@@ -462,38 +539,7 @@ const social = ["📷","📘","▶️","🎵"];
 
 function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
-function todayRowHtml(o){
-  return `<a href="evento.html" class="today-row">
-    <div class="today-date"><div class="d">${esc(o.dataBreve)}</div><div class="t">${esc(o.ora)}</div></div>
-    <div class="today-body">
-      <div class="today-top"><span class="today-title">${esc(o.titolo)}</span><span class="today-dot" style="background:${o.statusDot}"></span></div>
-      <div class="today-place">${esc(o.luogo)}</div>
-    </div>
-  </a>`;
-}
-document.getElementById('todayListDesktop').innerHTML = oggi.map(todayRowHtml).join('');
-document.getElementById('todayListDrawer').innerHTML = oggi.map(todayRowHtml).join('');
-
-document.getElementById('eventGrid').innerHTML = eventi.map(ev => `
-  <div class="event-card" style="opacity:${ev.opacity}">
-    <div class="event-media">
-      <img src="${esc(ev.img)}" alt="" loading="lazy">
-      <div class="badge status"><span class="legend-dot" style="background:${ev.statusDot}"></span><span style="color:${ev.statusText}">${esc(ev.statusLabel)}</span></div>
-      <div class="badge price" style="background:${ev.prezzoColor}">${esc(ev.prezzoLabel)}</div>
-    </div>
-    <div class="event-body">
-      <div class="event-title">${esc(ev.titolo)}</div>
-      <div class="event-meta">
-        <div class="row"><span class="ico">📅</span>${esc(ev.dataLabel)} · ${esc(ev.ora)}</div>
-        <div class="row place"><span class="ico">📍</span><span>${esc(ev.luogo)}<br><span style="color:var(--muted);font-size:.8rem">${esc(ev.via)}</span></span></div>
-      </div>
-      <div class="event-foot">
-        <a href="evento.html" class="details">Vedi dettagli →</a>
-        <a class="maps" href="${esc(ev.mapsUrl)}" target="_blank" rel="noopener">Apri in Maps ↗</a>
-      </div>
-    </div>
-  </div>
-`).join('');
+loadEventi();
 
 document.getElementById('recapGrid').innerHTML = serateRecap.map(s => `
   <div class="recap-card">
@@ -607,10 +653,10 @@ hillContours(STOP_W * 4.1, 108);
 hillContours(STOP_W * 5.4, 45);
 hillContours(STOP_W * 6.3, 100);
 
-// Laghetti vicino alle tappe sul lago: Lido comunale (Locarno, 3) e
-// Lungolago (Ascona, 5)
+// Laghetti vicino alle tappe sul lago: Lido comunale (Locarno, 4) e
+// Lungolago (Ascona, 6)
 const lakeAt = {};
-[3, 5].forEach(i => {
+[4, 6].forEach(i => {
   const cx = i * STOP_W + STOP_W / 2 + 60, cy = 115;
   lakeBlob(cx, cy);
   lakeAt[i] = [cx, cy];
@@ -623,7 +669,7 @@ const hamletOffsets = [[-6, 2], [6, -3]];
 const houseAt = {};
 tappeData.forEach((t, i) => {
   const cx = i * STOP_W + STOP_W / 2 - 55, cy = 30;
-  const isPiazza = [1, 4, 6].includes(i);
+  const isPiazza = [2, 5, 7].includes(i);
   houseCluster(cx, cy, isPiazza ? bigVillageOffsets : hamletOffsets);
   houseAt[i] = [cx, cy];
 });
@@ -657,7 +703,7 @@ for (let i = 1; i < railPts.length - 1; i += 2) {
 document.getElementById('tlTrain').setAttribute('opacity', '0.55');
 
 // Diramazioni stradali separate verso i laghetti (non la ferrovia)
-[3, 5].forEach(i => {
+[4, 6].forEach(i => {
   if (lakeAt[i] && houseAt[i]) {
     addPath(roadPath(houseAt[i][0], houseAt[i][1], lakeAt[i][0], lakeAt[i][1]), { stroke: '#0b0b0b', strokeWidth: 1, opacity: 0.1 });
   }
@@ -737,10 +783,20 @@ tabBtns.forEach(b => b.addEventListener('click', () => openDrawer(b.dataset.tab)
 drawerBackdrop.addEventListener('click', closeDrawer);
 document.getElementById('drawerClose').addEventListener('click', closeDrawer);
 
-// ── Newsletter (placeholder: nessun backend ancora collegato) ───────
-document.getElementById('newsletterForm').addEventListener('submit', (e) => {
+// ── Newsletter: iscrizione reale su cinetourIscritti ────────────────
+document.getElementById('newsletterForm').addEventListener('submit', async (e) => {
   e.preventDefault();
-  e.target.querySelector('button').textContent = 'Iscritto ✓';
+  const btn = e.target.querySelector('button');
+  const email = e.target.querySelector('input[type="email"]').value.trim();
+  btn.disabled = true;
+  try{
+    await addDoc(collection(db,'cinetourIscritti'), { email, createdAt: serverTimestamp() });
+    btn.textContent = 'Iscritto ✓';
+  }catch(err){
+    console.error('Errore iscrizione newsletter', err);
+    btn.textContent = 'Riprova';
+    btn.disabled = false;
+  }
 });
 </script>
 </body>

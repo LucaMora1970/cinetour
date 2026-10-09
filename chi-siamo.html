@@ -56,10 +56,7 @@
 
     footer.site-footer { padding:70px max(5vw,20px) 40px; border-top:1px solid rgba(11,11,11,.12); margin-top:60px }
     .footer-top { width:min(100%,1200px); margin-inline:auto; display:flex; flex-direction:column; align-items:center; gap:28px; text-align:center }
-    .footer-logo { display:block; width:44px; margin-bottom:6px }
-    .footer-logo img { display:block; width:100%; height:auto }
-    .footer-title { margin:0; max-width:420px; font-size:clamp(1.3rem,2.2vw,1.9rem); line-height:1.05; letter-spacing:-.02em; text-transform:uppercase; color:#8a8580 }
-    .footer-title .accent { color: var(--red) }
+    .footer-logo-img { display:block; height:36px; width:auto; margin-bottom:6px }
     .footer-pills { display:flex; flex-wrap:wrap; justify-content:center; align-items:stretch }
     .footer-pill { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; border:0; background:transparent; color: var(--ink); text-decoration:none; font:inherit; padding:4px 22px; cursor:pointer; text-align:center; transition:opacity .2s }
     .footer-pill:hover { opacity:.7 }
@@ -131,8 +128,7 @@
 
   <footer class="site-footer" id="contatti">
     <div class="footer-top">
-      <span class="footer-logo" aria-hidden="true"><img src="img/mark.png" alt=""></span>
-      <h3 class="footer-title">Cinetour<span class="accent">.ch</span></h3>
+      <img class="footer-logo-img" src="img/logo.png" alt="Cinetour.ch">
       <div class="footer-pills">
         <a class="footer-pill" href="index.html#calendario">
           <svg class="footer-pill-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2" stroke="currentColor" stroke-width="2"/><path d="M3 10h18M8 3v4M16 3v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>

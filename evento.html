@@ -43,7 +43,7 @@
     .event-hero img.backdrop { width:100%; height:100%; object-fit:cover; display:block }
     .event-hero-scrim { position:absolute; inset:0; background:linear-gradient(180deg,rgba(11,11,11,.1) 0%,rgba(11,11,11,.35) 55%,var(--panna) 100%) }
     .event-hero-inner { position:absolute; left:0; right:0; bottom:0; max-width:1200px; margin:0 auto; padding:0 max(5vw,24px); width:100%; box-sizing:border-box; display:flex; align-items:flex-end; gap:22px }
-    .event-poster { width:120px; height:178px; object-fit:cover; border-radius:8px; border:3px solid var(--panna); box-shadow:0 8px 24px rgba(11,11,11,.3); flex-shrink:0; transform:translateY(40px) }
+    .event-poster { width:160px; height:236px; object-fit:cover; border-radius:8px; border:3px solid var(--panna); box-shadow:0 8px 24px rgba(11,11,11,.3); flex-shrink:0; transform:translateY(45px) }
     .event-hero-title { padding-bottom:32px }
     .status-pill { display:inline-flex; align-items:center; gap:6px; background: var(--white); border:1px solid var(--green); padding:5px 12px; border-radius:20px; font-size:.68rem; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color: var(--green); margin-bottom:14px }
     .status-pill .dot { width:7px; height:7px; border-radius:50%; background: var(--green) }
@@ -94,45 +94,51 @@
     .step-panel { display:none; flex-direction:column; gap:18px }
     .step-panel.active { display:flex }
 
-    /* ── Footer (stesso di index.html) ───────────────────────────────── */
-    footer.site-footer { padding:70px max(5vw,20px) 40px; border-top:1px solid rgba(11,11,11,.12) }
+    /* ── Footer — sfondo scuro come su index.html (vedi gradiente sul
+       body), stesso linguaggio di cinema-ambulante.ch ─────────────────── */
+    footer.site-footer { padding:70px max(5vw,20px) 40px; border-top:1px solid rgba(255,253,248,.14) }
     .footer-top { width:min(100%,1200px); margin-inline:auto; display:flex; flex-direction:column; align-items:center; gap:28px; text-align:center }
-    .footer-logo { display:block; width:44px; margin-bottom:6px }
-    .footer-logo img { display:block; width:100%; height:auto }
-    .footer-title { margin:0; max-width:420px; font-size:clamp(1.3rem,2.2vw,1.9rem); line-height:1.05; letter-spacing:-.02em; text-transform:uppercase; color:#8a8580 }
-    .footer-title .accent { color: var(--red) }
+    .footer-logo-img { display:block; height:36px; width:auto; margin-bottom:6px }
     .footer-pills { display:flex; flex-wrap:wrap; justify-content:center; align-items:stretch }
-    .footer-pill { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; border:0; background:transparent; color: var(--ink); text-decoration:none; font:inherit; padding:4px 22px; cursor:pointer; text-align:center; transition:opacity .2s }
-    .footer-pill:hover { opacity:.7 }
+    .footer-pill { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; border:0; background:transparent; color: var(--white); text-decoration:none; font:inherit; padding:4px 22px; cursor:pointer; text-align:center; transition:opacity .2s }
+    .footer-pill:hover { opacity:.75 }
     .footer-pill-icon { width:22px; height:22px; color: var(--red) }
     .footer-pill-label { display:flex; flex-direction:column; gap:3px; font-size:.72rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; white-space:nowrap }
-    .footer-pill-sep { width:1px; align-self:stretch; background:rgba(11,11,11,.12) }
-    .footer-bottom { width:min(100%,1200px); margin:50px auto 0; padding-top:24px; border-top:1px solid rgba(11,11,11,.12); display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap; font-size:.74rem; color: var(--muted); letter-spacing:.04em }
+    .footer-pill-sep { width:1px; align-self:stretch; background:rgba(255,253,248,.14) }
+    .footer-bottom { width:min(100%,1200px); margin:50px auto 0; padding-top:24px; border-top:1px solid rgba(255,253,248,.14); display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap; font-size:.74rem; color: var(--muted-dark); letter-spacing:.04em }
     .footer-bottom a:hover { color: var(--red) }
     @media (max-width:620px) {
       .footer-pill-sep { display:none }
       .footer-pill { padding:6px 16px }
       .footer-bottom { flex-direction:column; align-items:center; text-align:center; gap:10px }
       .event-hero { height:360px }
-      .event-poster { width:92px; height:136px; transform:translateY(32px) }
+      .event-poster { width:116px; height:172px; transform:translateY(34px) }
     }
   </style>
 </head>
-<body>
+<body style="background:linear-gradient(180deg,#f2ede4 0%,#f2ede4 45%,#4a4038 60%,#0b0b0b 72%,#0b0b0b 100%)">
 
   <header>
     <a href="index.html"><img class="logo" src="img/logo.png" alt="Cinetour.ch"></a>
     <a href="index.html" class="back-link">← Torna al calendario</a>
   </header>
 
+  <div id="notFoundState" style="display:none;max-width:600px;margin:0 auto;padding:110px max(5vw,24px);text-align:center">
+    <div class="eyebrow-amb" style="justify-content:center"><span></span>Cinetour.ch</div>
+    <h1 class="title-amb" style="margin-bottom:16px">Evento non <span class="accent">trovato</span>.</h1>
+    <p style="margin:0 auto 24px;font-size:.98rem;color:var(--muted)">Questa serata non esiste più o il link non è corretto.</p>
+    <a class="maps-link" href="index.html#calendario">← Torna al calendario</a>
+  </div>
+
+  <div id="eventContent" style="display:none">
   <section class="event-hero">
-    <img class="backdrop" src="img/hero-bg.jpg" alt="">
+    <img class="backdrop" id="heroBackdrop" src="img/hero-bg.jpg" alt="">
     <div class="event-hero-scrim"></div>
     <div class="event-hero-inner">
-      <img class="event-poster" src="img/sample-up.jpg" alt="Locandina — La vita è bella">
+      <img class="event-poster" id="eventPoster" src="img/hero-bg.jpg" alt="">
       <div class="event-hero-title">
-        <div class="status-pill"><span class="dot"></span>Confermato</div>
-        <h1>La vita è bella</h1>
+        <div class="status-pill" id="statusPill"><span class="dot" id="statusDot"></span><span id="statusLabel"></span></div>
+        <h1 id="eventTitle"></h1>
       </div>
     </div>
   </section>
@@ -143,64 +149,62 @@
       <div>
         <div class="eyebrow-amb">Quando e dove</div>
         <div class="when-where">
-          <div>📅 Sabato 12 luglio 2026, ore 21:30</div>
-          <div>📍 Parco Ciani — Riva Caccia 1, 6900 Lugano</div>
+          <div id="whenLine"></div>
+          <div id="whereLine"></div>
         </div>
-        <img class="luogo-photo" src="img/sample-luogo.jpg" alt="Parco Ciani, Lugano">
-        <a class="maps-link" href="https://maps.google.com/?q=Parco+Ciani+Lugano" target="_blank" rel="noopener">Apri il percorso in Maps ↗</a>
+        <img class="luogo-photo" id="luogoPhoto" src="img/hero-bg.jpg" alt="" style="display:none">
+        <a class="maps-link" id="mapsLink" href="#" target="_blank" rel="noopener" style="display:none">Apri il percorso in Maps ↗</a>
       </div>
 
-      <div>
+      <div id="organizzatoreBlock" style="display:none">
         <div class="eyebrow-amb">Organizzato da</div>
-        <div class="val">Comune di Lugano, Servizio eventi culturali</div>
+        <div class="val" id="organizzatoreVal"></div>
       </div>
 
-      <div>
+      <div id="filmBlock" style="display:none">
         <div class="eyebrow-amb">Il film</div>
-        <div class="credits">
-          <div><b>Regia:</b> Roberto Benigni</div>
-          <div><b>Cast:</b> Roberto Benigni, Nicoletta Braschi, Giorgio Cantarini</div>
+        <div class="credits" id="creditsBlock">
+          <div id="creditsRegia" style="display:none"><b>Regia:</b> <span></span></div>
+          <div id="creditsCast" style="display:none"><b>Cast:</b> <span></span></div>
         </div>
-        <p class="plot">Guido usa la sua immaginazione per proteggere il figlio dagli orrori di un campo di concentramento nazista, trasformando la prigionia in un gioco per salvargli l'infanzia. Commedia drammatica, 1997 — 116 min.</p>
+        <p class="plot" id="plotText" style="display:none"></p>
       </div>
 
-      <div>
+      <div id="trailerBlock" style="display:none">
         <div class="eyebrow-amb">Trailer</div>
-        <button class="trailer-box" aria-label="Riproduci trailer" disabled>
-          <img src="img/sample-postino.jpg" alt="">
+        <button class="trailer-box" id="trailerBtn" aria-label="Riproduci trailer">
+          <img id="trailerThumb" src="" alt="">
           <div class="scrim"><div class="play">▶</div></div>
         </button>
       </div>
 
-      <div>
+      <div id="serviziBlock" style="display:none">
         <div class="eyebrow-amb">Servizi inclusi</div>
         <div class="servizi-row" id="serviziRow"></div>
       </div>
 
-      <div>
+      <div id="fotoGridBlock" style="display:none">
         <div class="eyebrow-amb">Foto delle serate precedenti</div>
-        <div class="foto-grid">
-          <img src="img/sample-cinema-paradiso.jpg" alt="" loading="lazy">
-          <img src="img/sample-up.jpg" alt="" loading="lazy">
-          <img src="img/sample-postino.jpg" alt="" loading="lazy">
-        </div>
+        <div class="foto-grid" id="fotoGrid"></div>
       </div>
 
     </div>
 
-    <div class="booking-col">
+    <div class="booking-col" id="bookingCol" style="display:none">
       <div class="booking-card">
 
         <div class="step-panel active" id="stepForm">
           <h2>Prenota il tuo posto</h2>
-          <div>
-            <div class="capacity-row"><span>18 su 30 posti confermati</span><span>60%</span></div>
-            <div class="capacity-bar"><div class="fill"></div></div>
+          <div id="capacityBlock" style="display:none">
+            <div class="capacity-row"><span id="capacityText"></span><span id="capacityPct"></span></div>
+            <div class="capacity-bar"><div class="fill" id="capacityFill"></div></div>
           </div>
-          <div class="booking-note">Massimo 6 persone a prenotazione. Il nome di ogni partecipante serve per il check-in individuale all'ingresso — se qualcuno del gruppo non viene, registriamo solo chi si presenta.</div>
+          <div class="booking-note" id="bookingNote">Il nome di ogni partecipante serve per il check-in individuale all'ingresso — se qualcuno del gruppo non viene, registriamo solo chi si presenta.</div>
+          <div class="booking-note" id="condizioniNote" style="display:none;margin-top:-6px"></div>
           <form id="bookingForm" style="display:flex;flex-direction:column;gap:12px">
-            <input type="email" placeholder="Email di contatto" required>
-            <input type="tel" placeholder="Telefono di contatto" required>
+            <input type="email" id="bookEmail" placeholder="Email di contatto" required>
+            <input type="tel" id="bookTel" placeholder="Telefono di contatto" required>
+            <input type="text" id="bookTessera" placeholder="Numero tessera/socio" style="display:none">
             <div class="stepper-row">
               <span class="lbl">Numero di persone</span>
               <div class="stepper-controls">
@@ -210,15 +214,20 @@
               </div>
             </div>
             <div class="participant-fields" id="participantFields"></div>
-            <button type="submit" class="submit-btn">Richiedi prenotazione</button>
+            <button type="submit" class="submit-btn" id="submitBtn">Richiedi prenotazione</button>
           </form>
+        </div>
+
+        <div class="step-panel" id="stepFull">
+          <h2>Posti esauriti</h2>
+          <p style="margin:0;font-size:.9rem;color:#3a3630;line-height:1.6">Per questa serata non ci sono più posti disponibili. Segui Cinetour.ch per non perderti le prossime date.</p>
+          <a class="maps-link" href="index.html#calendario">← Vedi le altre serate</a>
         </div>
 
         <div class="step-panel" id="stepSent">
           <h2>Richiesta inviata</h2>
-          <p style="margin:0;font-size:.9rem;color:#3a3630;line-height:1.6">Grazie! La tua richiesta per <span id="sentCount">2</span> <span id="sentLabel">persone</span> è in attesa di conferma dallo staff. Riceverai un'email con il codice d'ingresso non appena confermata.</p>
+          <p style="margin:0;font-size:.9rem;color:#3a3630;line-height:1.6">Grazie! La tua richiesta per <span id="sentCount">2</span> <span id="sentLabel">persone</span> è in attesa di conferma dallo staff. <b>Riceverai un'email con il codice d'ingresso</b> non appena confermata — tienila d'occhio, è il tuo unico modo per ritirare il codice.</p>
           <div class="pending-pill">In attesa</div>
-          <a href="#" id="demoConfirm" style="font-size:.74rem;color:var(--muted);margin-top:4px">→ anteprima: conferma dallo staff</a>
         </div>
 
         <div class="step-panel" id="stepConfirmed">
@@ -234,11 +243,11 @@
     </div>
 
   </div>
+  </div>
 
   <footer class="site-footer" id="contatti">
     <div class="footer-top">
-      <span class="footer-logo" aria-hidden="true"><img src="img/mark.png" alt=""></span>
-      <h3 class="footer-title">Cinetour<span class="accent">.ch</span></h3>
+      <img class="footer-logo-img" src="img/logo-light.png" alt="Cinetour.ch">
       <div class="footer-pills">
         <a class="footer-pill" href="index.html#calendario">
           <svg class="footer-pill-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2" stroke="currentColor" stroke-width="2"/><path d="M3 10h18M8 3v4M16 3v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
@@ -274,12 +283,162 @@
   </footer>
 
 <script type="module">
-function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, c => ({'&':'&lt;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {getFirestore,doc,getDoc,addDoc,collection,serverTimestamp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+const FB={apiKey:"AIzaSyCYM1tZsUI-pz3D0J6EWEMqyDxrk9hep1o",authDomain:"cinemanager-4c67c.firebaseapp.com",projectId:"cinemanager-4c67c",storageBucket:"cinemanager-4c67c.firebasestorage.app",messagingSenderId:"730874662111",appId:"1:730874662111:web:8a4a501dd81644bc96ed6a"};
+const fbApp=initializeApp(FB);
+const db=getFirestore(fbApp);
 
-const servizi = ["🍿 Bar e popcorn", "🪑 Sedute incluse", "🅿️ Parcheggio nelle vicinanze", "♿ Accesso senza barriere"];
-document.getElementById('serviziRow').innerHTML = servizi.map(s => `<span class="servizio-tag">${esc(s)}</span>`).join('');
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
-let numPersone = 2;
+const GIORNI=["domenica","lunedì","martedì","mercoledì","giovedì","venerdì","sabato"];
+const MESI=["gennaio","febbraio","marzo","aprile","maggio","giugno","luglio","agosto","settembre","ottobre","novembre","dicembre"];
+function parseLocalDate(s){ const [y,m,d]=(s||'').split('-').map(Number); return new Date(y||1970,(m||1)-1,d||1); }
+function dataLabelFull(s){ const d=parseLocalDate(s); return `${GIORNI[d.getDay()]} ${d.getDate()} ${MESI[d.getMonth()]} ${d.getFullYear()}`.replace(/^(.)/,c=>c.toUpperCase()); }
+const STATO_PILL={ confermato:{label:"Confermato",color:"var(--green)"}, attesa:{label:"In attesa",color:"var(--amber)"}, annullato:{label:"Annullato",color:"var(--muted-dark)"} };
+function dossierStato(dossier){ const s=dossier&&dossier.status; return s==='confermata'?'confermato':(s==='annullata'?'annullato':'attesa'); }
+
+// Una "serata" qui è una data pubblicata (dates[].cinetour.pubblicato)
+// dentro una prenotazione ☀ CineTour OA (bookings, type='openair') —
+// niente collezione propria: identificata dal link con bookingId+data.
+let ev=null, numPersone=2;
+
+async function init(){
+  const params=new URLSearchParams(location.search);
+  const bookingId=params.get('b');
+  const dateStr=params.get('d');
+  if(!bookingId||!dateStr){ showNotFound(); return; }
+  let bSnap;
+  try{ bSnap=await getDoc(doc(db,'bookings',bookingId)); }
+  catch(err){ console.error('Errore caricamento prenotazione', err); showNotFound(); return; }
+  if(!bSnap.exists()){ showNotFound(); return; }
+  const booking={ id:bSnap.id, ...bSnap.data() };
+  const dateEntry=(booking.dates||[]).find(d=>d.date===dateStr);
+  if(!dateEntry||!dateEntry.cinetour||!dateEntry.cinetour.pubblicato){ showNotFound(); return; }
+  const ct=dateEntry.cinetour;
+  let film=null;
+  if(booking.filmId){
+    try{ const fSnap=await getDoc(doc(db,'films',booking.filmId)); if(fSnap.exists())film={id:fSnap.id,...fSnap.data()}; }
+    catch(err){ console.error('Errore caricamento film', err); }
+  }
+  ev={
+    bookingId, data:dateStr, ora:dateEntry.start||'',
+    stato:dossierStato(dateEntry.dossier),
+    titolo:film?film.title:(booking.oaFilmTitle||booking.name||''),
+    // Poster/backdrop/regia/trama: priorità al testo pubblico curato nel
+    // Dossier (Fase 7), altrimenti quello già in Archivio Film — l'admin
+    // non deve ricaricare/ridigitare nulla che esiste già lì
+    posterUrl:ct.posterUrl||(film&&film.poster)||'',
+    backdropUrl:ct.backdropUrl||(film&&film.backdrop)||'',
+    luogoNome:ct.luogoNome||'', luogoVia:ct.luogoVia||'', luogoComune:ct.luogoComune||'',
+    luogoMapsUrl:ct.luogoMapsUrl||'', luogoFotoUrl:ct.luogoFotoUrl||'',
+    organizzatore:ct.organizzatore||'',
+    filmRegia:ct.filmRegia||(film&&film.director)||'', filmCast:ct.filmCast||'',
+    filmTrama:ct.filmTrama||(film&&film.desc)||'',
+    trailerId:(film&&film.trailer)||'',
+    servizi:ct.servizi||[], fotoGrid:ct.fotoGrid||[],
+    condizioni:ct.condizioniPartecipazione||'',
+    prenotazioniAttive:!!ct.prenotazioniAttive,
+    tesseraRichiesta:!!ct.tesseraRichiesta, maxPersone:ct.maxPersonePerPrenotazione||6,
+    postiTotali:ct.postiTotali||0, postiConfermati:ct.postiConfermati||0
+  };
+  render();
+}
+
+function showNotFound(){
+  document.getElementById('notFoundState').style.display='';
+  document.getElementById('eventContent').style.display='none';
+}
+
+function render(){
+  document.getElementById('eventContent').style.display='';
+  document.title = `${ev.titolo||'Evento'} — Cinetour.ch`;
+
+  document.getElementById('heroBackdrop').src = ev.backdropUrl || ev.posterUrl || 'img/hero-bg.jpg';
+  document.getElementById('eventPoster').src = ev.posterUrl || ev.backdropUrl || 'img/hero-bg.jpg';
+  document.getElementById('eventTitle').textContent = ev.titolo || '';
+
+  const st = STATO_PILL[ev.stato] || STATO_PILL.attesa;
+  const pill = document.getElementById('statusPill');
+  pill.style.borderColor = st.color;
+  pill.style.color = st.color;
+  document.getElementById('statusDot').style.background = st.color;
+  document.getElementById('statusLabel').textContent = st.label;
+
+  document.getElementById('whenLine').textContent = `📅 ${dataLabelFull(ev.data)}${ev.ora?', ore '+ev.ora:''}`;
+  const dove=[ev.luogoNome,[ev.luogoVia,ev.luogoComune].filter(Boolean).join(', ')].filter(Boolean).join(' — ');
+  document.getElementById('whereLine').textContent = `📍 ${dove}`;
+  if(ev.luogoFotoUrl){
+    const img=document.getElementById('luogoPhoto');
+    img.src=ev.luogoFotoUrl; img.alt=ev.luogoNome||''; img.style.display='';
+  }
+  if(ev.luogoMapsUrl){
+    const a=document.getElementById('mapsLink');
+    a.href=ev.luogoMapsUrl; a.style.display='';
+  }
+
+  if(ev.organizzatore){
+    document.getElementById('organizzatoreBlock').style.display='';
+    document.getElementById('organizzatoreVal').textContent = ev.organizzatore;
+  }
+
+  const hasRegia=!!ev.filmRegia, hasCast=!!ev.filmCast, hasTrama=!!ev.filmTrama;
+  if(hasRegia||hasCast||hasTrama){
+    document.getElementById('filmBlock').style.display='';
+    if(hasRegia){ const el=document.getElementById('creditsRegia'); el.style.display=''; el.querySelector('span').textContent=ev.filmRegia; }
+    if(hasCast){ const el=document.getElementById('creditsCast'); el.style.display=''; el.querySelector('span').textContent=ev.filmCast; }
+    if(hasTrama){ const el=document.getElementById('plotText'); el.style.display=''; el.textContent=ev.filmTrama; }
+  }
+
+  if(ev.trailerId){
+    document.getElementById('trailerBlock').style.display='';
+    document.getElementById('trailerThumb').src = ev.backdropUrl || ev.posterUrl || 'img/hero-bg.jpg';
+    document.getElementById('trailerBtn').addEventListener('click', () => {
+      document.getElementById('trailerBtn').outerHTML = `<div class="trailer-box" style="cursor:default"><iframe src="https://www.youtube.com/embed/${esc(ev.trailerId)}?autoplay=1" title="Trailer" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowfullscreen loading="lazy" style="width:100%;height:100%;border:0;display:block"></iframe></div>`;
+    });
+  }
+
+  const servizi = ev.servizi||[];
+  if(servizi.length){
+    document.getElementById('serviziBlock').style.display='';
+    document.getElementById('serviziRow').innerHTML = servizi.map(s => `<span class="servizio-tag">${esc(s)}</span>`).join('');
+  }
+
+  const foto = ev.fotoGrid||[];
+  if(foto.length){
+    document.getElementById('fotoGridBlock').style.display='';
+    document.getElementById('fotoGrid').innerHTML = foto.map(url => `<img src="${esc(url)}" alt="" loading="lazy">`).join('');
+  }
+
+  // Il pannello di prenotazione compare solo se l'organizzatore lo ha
+  // attivato nel Dossier (Fase 7) — altrimenti niente da mostrare qui
+  if(ev.prenotazioniAttive){
+    document.getElementById('bookingCol').style.display='';
+    const postiTotali = ev.postiTotali||0;
+    const postiConfermati = ev.postiConfermati||0;
+    const esaurito = postiTotali>0 && postiConfermati>=postiTotali;
+    if(postiTotali>0){
+      document.getElementById('capacityBlock').style.display='';
+      const pct = Math.min(100, Math.round(postiConfermati/postiTotali*100));
+      document.getElementById('capacityText').textContent = `${postiConfermati} su ${postiTotali} posti confermati`;
+      document.getElementById('capacityPct').textContent = pct+'%';
+      document.getElementById('capacityFill').style.width = pct+'%';
+    }
+    document.getElementById('bookingNote').textContent = `Massimo ${ev.maxPersone} person${ev.maxPersone===1?'a':'e'} a prenotazione. Il nome di ogni partecipante serve per il check-in individuale all'ingresso — se qualcuno del gruppo non viene, registriamo solo chi si presenta.`;
+    if(ev.tesseraRichiesta){
+      const t=document.getElementById('bookTessera');
+      t.style.display=''; t.required=true;
+    }
+    if(ev.condizioni){
+      const c=document.getElementById('condizioniNote');
+      c.style.display=''; c.textContent = `Condizioni di partecipazione: ${ev.condizioni}`;
+    }
+    if(esaurito || ev.stato==='annullato'){
+      showStep('full');
+    }
+  }
+}
+
 const participantFields = document.getElementById('participantFields');
 const personCount = document.getElementById('personCount');
 const decBtn = document.getElementById('decBtn');
@@ -294,10 +453,11 @@ function renderParticipants(){
 }
 renderParticipants();
 decBtn.addEventListener('click', () => { numPersone = Math.max(1, numPersone - 1); renderParticipants(); });
-incBtn.addEventListener('click', () => { numPersone = Math.min(6, numPersone + 1); renderParticipants(); });
+incBtn.addEventListener('click', () => { numPersone = Math.min((ev&&ev.maxPersone)||6, numPersone + 1); renderParticipants(); });
 
 const steps = {
   form: document.getElementById('stepForm'),
+  full: document.getElementById('stepFull'),
   sent: document.getElementById('stepSent'),
   confirmed: document.getElementById('stepConfirmed')
 };
@@ -306,16 +466,30 @@ function showStep(name){
   steps[name].classList.add('active');
 }
 
-document.getElementById('bookingForm').addEventListener('submit', (e) => {
+document.getElementById('bookingForm').addEventListener('submit', async (e) => {
   e.preventDefault();
-  document.getElementById('sentCount').textContent = numPersone;
-  document.getElementById('sentLabel').textContent = numPersone === 1 ? 'persona' : 'persone';
-  showStep('sent');
+  const btn=document.getElementById('submitBtn');
+  const email=document.getElementById('bookEmail').value.trim();
+  const telefono=document.getElementById('bookTel').value.trim();
+  const tessera=document.getElementById('bookTessera').value.trim();
+  const partecipanti=Array.from(participantFields.querySelectorAll('input')).map(i=>i.value.trim());
+  btn.disabled=true; btn.textContent='Invio in corso…';
+  try{
+    await addDoc(collection(db,'cinetourPrenotazioni'), {
+      bookingId: ev.bookingId, date: ev.data, email, telefono, tessera, numPersone, partecipanti,
+      stato: 'in_attesa', createdAt: serverTimestamp()
+    });
+    document.getElementById('sentCount').textContent = numPersone;
+    document.getElementById('sentLabel').textContent = numPersone === 1 ? 'persona' : 'persone';
+    showStep('sent');
+  }catch(err){
+    console.error('Errore invio prenotazione', err);
+    btn.disabled=false; btn.textContent='Richiedi prenotazione';
+    alert('Invio non riuscito, riprova.');
+  }
 });
-document.getElementById('demoConfirm').addEventListener('click', (e) => {
-  e.preventDefault();
-  showStep('confirmed');
-});
+
+init();
 </script>
 </body>
 </html>
