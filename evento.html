@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f2ede4">
+  <title>La vita è bella — Cinetour.ch</title>
+  <meta name="description" content="Proiezione di La vita è bella: data, luogo e come prenotare il tuo posto al cinema open air itinerante in Ticino.">
+  <link rel="canonical" href="https://www.cinetour.ch/evento.html">
+
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="img/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="img/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
+
+  <style>
+    :root {
+      --panna: #f2ede4;
+      --ink: #0b0b0b;
+      --white: #fffdf8;
+      --red: #e9342f;
+      --red-deep: #92211d;
+      --muted: #726c62;
+      --muted-dark: #9c968e;
+      --amber: #9c6a0c;
+      --green: #1f8a52;
+      --surf: #161616;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: Arial, Helvetica, sans-serif; background: var(--panna); color: var(--ink) }
+    a { color: inherit; text-decoration: none }
+    img { max-width: 100% }
+
+    header { display:flex; align-items:center; justify-content:space-between; padding:20px max(5vw,24px); border-bottom:1px solid rgba(11,11,11,.12); flex-wrap:wrap; gap:16px }
+    header img.logo { height:26px; width:auto; display:block }
+    .back-link { font-size:.74rem; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color: var(--muted); transition:color .2s }
+    .back-link:hover { color: var(--ink) }
+
+    .eyebrow-amb { display:flex; align-items:center; gap:12px; margin-bottom:14px; font-size:.72rem; font-weight:700; letter-spacing:.2em; text-transform:uppercase; color: var(--amber) }
+
+    /* ── Hero: backdrop + locandina in sovraimpressione ──────────────── */
+    .event-hero { position:relative; height:420px }
+    .event-hero img.backdrop { width:100%; height:100%; object-fit:cover; display:block }
+    .event-hero-scrim { position:absolute; inset:0; background:linear-gradient(180deg,rgba(11,11,11,.1) 0%,rgba(11,11,11,.35) 55%,var(--panna) 100%) }
+    .event-hero-inner { position:absolute; left:0; right:0; bottom:0; max-width:1200px; margin:0 auto; padding:0 max(5vw,24px); width:100%; box-sizing:border-box; display:flex; align-items:flex-end; gap:22px }
+    .event-poster { width:120px; height:178px; object-fit:cover; border-radius:8px; border:3px solid var(--panna); box-shadow:0 8px 24px rgba(11,11,11,.3); flex-shrink:0; transform:translateY(40px) }
+    .event-hero-title { padding-bottom:32px }
+    .status-pill { display:inline-flex; align-items:center; gap:6px; background: var(--white); border:1px solid var(--green); padding:5px 12px; border-radius:20px; font-size:.68rem; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color: var(--green); margin-bottom:14px }
+    .status-pill .dot { width:7px; height:7px; border-radius:50%; background: var(--green) }
+    .event-hero-title h1 { margin:0; font-size:clamp(1.8rem,3.4vw,2.8rem); line-height:1.05; letter-spacing:-.02em; text-transform:uppercase; color: var(--white); text-shadow:0 2px 12px rgba(11,11,11,.4) }
+
+    /* ── Contenuto ────────────────────────────────────────────────────── */
+    .event-content { max-width:1200px; margin:0 auto; padding:72px max(5vw,24px) 90px; display:flex; gap:40px; flex-wrap:wrap }
+    .event-info { flex:999 1 560px; min-width:0; display:flex; flex-direction:column; gap:34px }
+    .info-block .val { font-size:.98rem; color:#3a3630 }
+    .when-where { display:flex; flex-direction:column; gap:10px; font-size:.98rem; color:#3a3630; margin-bottom:16px }
+    .luogo-photo { width:100%; max-width:460px; aspect-ratio:16/9; object-fit:cover; border-radius:10px; display:block }
+    .maps-link { display:inline-block; margin-top:14px; font-size:.8rem; font-weight:700; color: var(--red) }
+    .maps-link:hover { color: var(--ink) }
+    .credits { display:flex; flex-direction:column; gap:4px; margin-bottom:14px; font-size:.9rem; color:#3a3630 }
+    .plot { margin:0; font-size:.98rem; color:#3a3630; line-height:1.65; max-width:620px }
+    .trailer-box { position:relative; width:100%; max-width:620px; aspect-ratio:16/9; border-radius:10px; overflow:hidden; cursor:pointer; border:0; padding:0 }
+    .trailer-box img { width:100%; height:100%; object-fit:cover; display:block }
+    .trailer-box .scrim { position:absolute; inset:0; background:rgba(11,11,11,.35); display:flex; align-items:center; justify-content:center }
+    .trailer-box .play { width:62px; height:62px; border-radius:50%; background:rgba(255,253,248,.92); display:flex; align-items:center; justify-content:center; font-size:1.3rem; color: var(--ink); box-shadow:0 4px 16px rgba(11,11,11,.3) }
+    .servizi-row { display:flex; flex-wrap:wrap; gap:10px }
+    .servizio-tag { background: var(--white); border:1px solid rgba(11,11,11,.12); padding:8px 16px; border-radius:20px; font-size:.78rem; color:#3a3630 }
+    .foto-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px }
+    .foto-grid img { width:100%; aspect-ratio:4/3; object-fit:cover; border-radius:8px }
+
+    /* ── Pannello prenotazione ────────────────────────────────────────── */
+    .booking-col { flex:1 1 320px; min-width:300px; max-width:380px }
+    .booking-card { position:sticky; top:24px; background: var(--white); border:1px solid rgba(11,11,11,.12); border-radius:12px; padding:26px; display:flex; flex-direction:column; gap:18px; box-shadow:0 8px 28px rgba(11,11,11,.06) }
+    .booking-card h2 { margin:0; font-size:1.05rem; font-weight:800; text-transform:uppercase }
+    .capacity-row { display:flex; justify-content:space-between; font-size:.8rem; color: var(--muted); margin-bottom:8px }
+    .capacity-bar { height:6px; background: var(--panna); border-radius:4px; overflow:hidden }
+    .capacity-bar .fill { width:60%; height:100%; background: var(--green) }
+    .booking-note { font-size:.78rem; color: var(--muted) }
+    .booking-card input { background: var(--panna); border:1px solid rgba(11,11,11,.14); border-radius:6px; padding:12px 14px; color: var(--ink); font-size:.9rem; font-family:inherit; width:100% }
+    .booking-card input:focus { outline:2px solid var(--red); outline-offset:1px }
+    .stepper-row { display:flex; align-items:center; justify-content:space-between; margin-top:6px }
+    .stepper-row .lbl { font-size:.8rem; color: var(--muted) }
+    .stepper-controls { display:flex; align-items:center; gap:14px }
+    .stepper-btn { width:30px; height:30px; border-radius:50%; background: var(--panna); border:1px solid rgba(11,11,11,.14); color: var(--ink); font-size:1rem; cursor:pointer; font-family:inherit }
+    .stepper-btn:hover { background:#ece6da }
+    .stepper-count { font-size:.95rem; font-weight:700; width:14px; text-align:center }
+    .participant-fields { display:flex; flex-direction:column; gap:10px; margin-top:4px }
+    .submit-btn { background: var(--red); color: var(--white); border:0; border-radius:6px; padding:14px; font-size:.84rem; font-weight:700; letter-spacing:.04em; text-transform:uppercase; cursor:pointer; transition:background .2s; font-family:inherit }
+    .submit-btn:hover { background: var(--red-deep) }
+    .pending-pill { display:inline-flex; align-items:center; gap:6px; background:#fdf3e0; border:1px solid var(--amber); padding:5px 12px; border-radius:20px; font-size:.68rem; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color: var(--amber); width:fit-content }
+    .code-box { display:flex; flex-direction:column; align-items:center; gap:10px; background: var(--panna); border:1px solid rgba(11,11,11,.12); border-radius:8px; padding:22px }
+    .qr-placeholder { width:120px; height:120px; background: var(--ink); border-radius:4px; display:flex; align-items:center; justify-content:center; font-size:.6rem; color: var(--white); text-align:center; padding:8px; box-sizing:border-box }
+    .code-value { font-size:1.2rem; font-weight:800; letter-spacing:.1em }
+    .step-panel { display:none; flex-direction:column; gap:18px }
+    .step-panel.active { display:flex }
+
+    /* ── Footer (stesso di index.html) ───────────────────────────────── */
+    footer.site-footer { padding:70px max(5vw,20px) 40px; border-top:1px solid rgba(11,11,11,.12) }
+    .footer-top { width:min(100%,1200px); margin-inline:auto; display:flex; flex-direction:column; align-items:center; gap:28px; text-align:center }
+    .footer-logo { display:block; width:44px; margin-bottom:6px }
+    .footer-logo img { display:block; width:100%; height:auto }
+    .footer-title { margin:0; max-width:420px; font-size:clamp(1.3rem,2.2vw,1.9rem); line-height:1.05; letter-spacing:-.02em; text-transform:uppercase; color:#8a8580 }
+    .footer-title .accent { color: var(--red) }
+    .footer-pills { display:flex; flex-wrap:wrap; justify-content:center; align-items:stretch }
+    .footer-pill { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; border:0; background:transparent; color: var(--ink); text-decoration:none; font:inherit; padding:4px 22px; cursor:pointer; text-align:center; transition:opacity .2s }
+    .footer-pill:hover { opacity:.7 }
+    .footer-pill-icon { width:22px; height:22px; color: var(--red) }
+    .footer-pill-label { display:flex; flex-direction:column; gap:3px; font-size:.72rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; white-space:nowrap }
+    .footer-pill-sep { width:1px; align-self:stretch; background:rgba(11,11,11,.12) }
+    .footer-bottom { width:min(100%,1200px); margin:50px auto 0; padding-top:24px; border-top:1px solid rgba(11,11,11,.12); display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap; font-size:.74rem; color: var(--muted); letter-spacing:.04em }
+    .footer-bottom a:hover { color: var(--red) }
+    @media (max-width:620px) {
+      .footer-pill-sep { display:none }
+      .footer-pill { padding:6px 16px }
+      .footer-bottom { flex-direction:column; align-items:center; text-align:center; gap:10px }
+      .event-hero { height:360px }
+      .event-poster { width:92px; height:136px; transform:translateY(32px) }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <a href="index.html"><img class="logo" src="img/logo.png" alt="Cinetour.ch"></a>
+    <a href="index.html" class="back-link">← Torna al calendario</a>
+  </header>
+
+  <section class="event-hero">
+    <img class="backdrop" src="img/hero-bg.jpg" alt="">
+    <div class="event-hero-scrim"></div>
+    <div class="event-hero-inner">
+      <img class="event-poster" src="img/sample-up.jpg" alt="Locandina — La vita è bella">
+      <div class="event-hero-title">
+        <div class="status-pill"><span class="dot"></span>Confermato</div>
+        <h1>La vita è bella</h1>
+      </div>
+    </div>
+  </section>
+
+  <div class="event-content">
+    <div class="event-info">
+
+      <div>
+        <div class="eyebrow-amb">Quando e dove</div>
+        <div class="when-where">
+          <div>📅 Sabato 12 luglio 2026, ore 21:30</div>
+          <div>📍 Parco Ciani — Riva Caccia 1, 6900 Lugano</div>
+        </div>
+        <img class="luogo-photo" src="img/sample-luogo.jpg" alt="Parco Ciani, Lugano">
+        <a class="maps-link" href="https://maps.google.com/?q=Parco+Ciani+Lugano" target="_blank" rel="noopener">Apri il percorso in Maps ↗</a>
+      </div>
+
+      <div>
+        <div class="eyebrow-amb">Organizzato da</div>
+        <div class="val">Comune di Lugano, Servizio eventi culturali</div>
+      </div>
+
+      <div>
+        <div class="eyebrow-amb">Il film</div>
+        <div class="credits">
+          <div><b>Regia:</b> Roberto Benigni</div>
+          <div><b>Cast:</b> Roberto Benigni, Nicoletta Braschi, Giorgio Cantarini</div>
+        </div>
+        <p class="plot">Guido usa la sua immaginazione per proteggere il figlio dagli orrori di un campo di concentramento nazista, trasformando la prigionia in un gioco per salvargli l'infanzia. Commedia drammatica, 1997 — 116 min.</p>
+      </div>
+
+      <div>
+        <div class="eyebrow-amb">Trailer</div>
+        <button class="trailer-box" aria-label="Riproduci trailer" disabled>
+          <img src="img/sample-postino.jpg" alt="">
+          <div class="scrim"><div class="play">▶</div></div>
+        </button>
+      </div>
+
+      <div>
+        <div class="eyebrow-amb">Servizi inclusi</div>
+        <div class="servizi-row" id="serviziRow"></div>
+      </div>
+
+      <div>
+        <div class="eyebrow-amb">Foto delle serate precedenti</div>
+        <div class="foto-grid">
+          <img src="img/sample-cinema-paradiso.jpg" alt="" loading="lazy">
+          <img src="img/sample-up.jpg" alt="" loading="lazy">
+          <img src="img/sample-postino.jpg" alt="" loading="lazy">
+        </div>
+      </div>
+
+    </div>
+
+    <div class="booking-col">
+      <div class="booking-card">
+
+        <div class="step-panel active" id="stepForm">
+          <h2>Prenota il tuo posto</h2>
+          <div>
+            <div class="capacity-row"><span>18 su 30 posti confermati</span><span>60%</span></div>
+            <div class="capacity-bar"><div class="fill"></div></div>
+          </div>
+          <div class="booking-note">Massimo 6 persone a prenotazione. Il nome di ogni partecipante serve per il check-in individuale all'ingresso — se qualcuno del gruppo non viene, registriamo solo chi si presenta.</div>
+          <form id="bookingForm" style="display:flex;flex-direction:column;gap:12px">
+            <input type="email" placeholder="Email di contatto" required>
+            <input type="tel" placeholder="Telefono di contatto" required>
+            <div class="stepper-row">
+              <span class="lbl">Numero di persone</span>
+              <div class="stepper-controls">
+                <button type="button" class="stepper-btn" id="decBtn">−</button>
+                <span class="stepper-count" id="personCount">2</span>
+                <button type="button" class="stepper-btn" id="incBtn">+</button>
+              </div>
+            </div>
+            <div class="participant-fields" id="participantFields"></div>
+            <button type="submit" class="submit-btn">Richiedi prenotazione</button>
+          </form>
+        </div>
+
+        <div class="step-panel" id="stepSent">
+          <h2>Richiesta inviata</h2>
+          <p style="margin:0;font-size:.9rem;color:#3a3630;line-height:1.6">Grazie! La tua richiesta per <span id="sentCount">2</span> <span id="sentLabel">persone</span> è in attesa di conferma dallo staff. Riceverai un'email con il codice d'ingresso non appena confermata.</p>
+          <div class="pending-pill">In attesa</div>
+          <a href="#" id="demoConfirm" style="font-size:.74rem;color:var(--muted);margin-top:4px">→ anteprima: conferma dallo staff</a>
+        </div>
+
+        <div class="step-panel" id="stepConfirmed">
+          <h2 style="color:var(--green)">Prenotazione confermata</h2>
+          <p style="margin:0;font-size:.9rem;color:#3a3630;line-height:1.6">Ti aspettiamo! Mostra questo codice all'ingresso.</p>
+          <div class="code-box">
+            <div class="qr-placeholder">[ QR codice ]</div>
+            <div class="code-value">7K2F9A</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <footer class="site-footer" id="contatti">
+    <div class="footer-top">
+      <span class="footer-logo" aria-hidden="true"><img src="img/mark.png" alt=""></span>
+      <h3 class="footer-title">Cinetour<span class="accent">.ch</span></h3>
+      <div class="footer-pills">
+        <a class="footer-pill" href="index.html#calendario">
+          <svg class="footer-pill-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2" stroke="currentColor" stroke-width="2"/><path d="M3 10h18M8 3v4M16 3v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          <span class="footer-pill-label">Tutte le proiezioni</span>
+        </a>
+        <span class="footer-pill-sep" aria-hidden="true"></span>
+        <a class="footer-pill" href="https://www.cinema-ambulante.ch" target="_blank" rel="noopener">
+          <svg class="footer-pill-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span class="footer-pill-label">Cinematografo Ambulante</span>
+        </a>
+        <span class="footer-pill-sep" aria-hidden="true"></span>
+        <a class="footer-pill" href="https://www.cinemamultisalateatro.ch" target="_blank" rel="noopener">
+          <svg class="footer-pill-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span class="footer-pill-label">Cinema Multisala Teatro</span>
+        </a>
+        <span class="footer-pill-sep" aria-hidden="true"></span>
+        <a class="footer-pill" href="tel:+41916461654">
+          <svg class="footer-pill-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M6.6 10.8c1.4 2.8 3.8 5.2 6.6 6.6l2.2-2.2c.3-.3.7-.4 1.1-.2 1.2.4 2.5.6 3.8.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C10.6 21 3 13.4 3 4c0-.6.4-1 1-1h3.4c.6 0 1 .4 1 1 0 1.3.2 2.6.6 3.8.1.4 0 .8-.2 1.1L6.6 10.8Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+          <span class="footer-pill-label">+41 091 646 16 54</span>
+        </a>
+        <span class="footer-pill-sep" aria-hidden="true"></span>
+        <a class="footer-pill" href="mailto:info@cinetour.ch">
+          <svg class="footer-pill-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" stroke-width="2"/><path d="m4 7 8 6 8-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span class="footer-pill-label">info@cinetour.ch</span>
+        </a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Cinetour.ch — un progetto del Cinematografo Ambulante</span>
+      <a href="https://www.cinema-ambulante.ch/privacy.html" target="_blank" rel="noopener">Privacy Policy</a>
+      <span>Mendrisio · Ticino · Svizzera</span>
+    </div>
+  </footer>
+
+<script type="module">
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, c => ({'&':'&lt;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+const servizi = ["🍿 Bar e popcorn", "🪑 Sedute incluse", "🅿️ Parcheggio nelle vicinanze", "♿ Accesso senza barriere"];
+document.getElementById('serviziRow').innerHTML = servizi.map(s => `<span class="servizio-tag">${esc(s)}</span>`).join('');
+
+let numPersone = 2;
+const participantFields = document.getElementById('participantFields');
+const personCount = document.getElementById('personCount');
+const decBtn = document.getElementById('decBtn');
+const incBtn = document.getElementById('incBtn');
+
+function renderParticipants(){
+  personCount.textContent = numPersone;
+  participantFields.innerHTML = Array.from({ length: numPersone }, (_, i) => {
+    const ph = i === 0 ? 'Nome e cognome (tu)' : `Nome e cognome persona ${i + 1}`;
+    return `<input type="text" placeholder="${esc(ph)}" required>`;
+  }).join('');
+}
+renderParticipants();
+decBtn.addEventListener('click', () => { numPersone = Math.max(1, numPersone - 1); renderParticipants(); });
+incBtn.addEventListener('click', () => { numPersone = Math.min(6, numPersone + 1); renderParticipants(); });
+
+const steps = {
+  form: document.getElementById('stepForm'),
+  sent: document.getElementById('stepSent'),
+  confirmed: document.getElementById('stepConfirmed')
+};
+function showStep(name){
+  Object.values(steps).forEach(el => el.classList.remove('active'));
+  steps[name].classList.add('active');
+}
+
+document.getElementById('bookingForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  document.getElementById('sentCount').textContent = numPersone;
+  document.getElementById('sentLabel').textContent = numPersone === 1 ? 'persona' : 'persone';
+  showStep('sent');
+});
+document.getElementById('demoConfirm').addEventListener('click', (e) => {
+  e.preventDefault();
+  showStep('confirmed');
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f2ede4">
+  <title>Cinetour.ch — Il cinema open air itinerante in Ticino</title>
+  <meta name="description" content="Il calendario del cinema open air itinerante in Ticino: date, luoghi e film di tutte le proiezioni, con prenotazione dove disponibile.">
+  <link rel="canonical" href="https://www.cinetour.ch/">
+
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="img/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="img/favicon-16x16.png">
+  <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
+
+  <!-- Foto di sfondo della hero: background-image via CSS verrebbe scoperta
+       solo dopo il parsing del CSS — qui è un <img>, quindi lo scanner la
+       trova subito, ma il preload la fa comunque partire prima -->
+  <link rel="preload" as="image" href="img/hero-bg.jpg">
+
+  <style>
+    :root {
+      --panna: #f2ede4;
+      --ink: #0b0b0b;
+      --white: #fffdf8;
+      --red: #e9342f;
+      --red-deep: #92211d;
+      --muted: #726c62;
+      --muted-dark: #9c968e;
+      --amber: #9c6a0c;
+      --green: #1f8a52;
+      --surf: #161616;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: Arial, Helvetica, sans-serif; background: var(--panna); }
+    a { color: inherit; text-decoration: none; }
+    img { max-width: 100%; }
+
+    /* ── Tipografia condivisa ───────────────────────────────────────── */
+    .eyebrow { display:flex; align-items:center; gap:12px; margin-bottom:24px; font-size:clamp(.67rem,1.34vw,1.3rem); letter-spacing:.22em; text-transform:uppercase; color: var(--red); }
+    .eyebrow > span:first-child { width:46px; height:2px; display:inline-block; flex-shrink:0; background: var(--red); }
+    .mega { margin:0; font-weight:700; font-size:clamp(3.6rem,11.2vw,10.8rem); line-height:.8; letter-spacing:-.048em; text-transform:uppercase; text-wrap:balance; overflow-wrap:normal }
+    .sub { margin-top:34px; max-width:650px; font-size:clamp(1rem,1.6vw,1.55rem); line-height:1.58; color: var(--ink) }
+    .eyebrow-amb { display:flex; align-items:center; gap:12px; margin-bottom:22px; font-size:.74rem; font-weight:700; letter-spacing:.24em; text-transform:uppercase; color: var(--red); }
+    .eyebrow-amb > span:first-child { width:40px; height:2px; display:inline-block; flex-shrink:0; background: var(--red); }
+    .title-amb { margin:0; font-size:clamp(2.2rem,5vw,3.6rem); line-height:1; letter-spacing:-.02em; text-transform:uppercase; max-width:900px }
+    .accent { color: var(--red); }
+    .section { max-width:1200px; margin:0 auto; padding:110px max(5vw,24px) 0 }
+
+    /* ── Header ─────────────────────────────────────────────────────── */
+    header { display:flex; align-items:center; justify-content:space-between; padding:20px max(5vw,24px); border-bottom:1px solid rgba(11,11,11,.12); flex-wrap:wrap; gap:16px }
+    header img.logo { height:26px; width:auto; display:block }
+    nav.main-nav { display:flex; gap:28px; font-size:.74rem; font-weight:600; letter-spacing:.05em; text-transform:uppercase; color: var(--ink) }
+    nav.main-nav a { opacity:.65; transition:opacity .2s }
+    nav.main-nav a:hover, nav.main-nav a.active { opacity:1 }
+
+    /* ── Hero ───────────────────────────────────────────────────────── */
+    .hero { position:relative; padding:72px max(5vw,24px) 56px; overflow:hidden }
+    .hero-bg { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; z-index:0; opacity:.5 }
+    .hero-scrim { position:absolute; inset:0; z-index:1; background:linear-gradient(180deg,rgba(11,11,11,.4) 0%,rgba(11,11,11,.3) 40%,rgba(11,11,11,.12) 78%,var(--panna) 100%) }
+    .hero-inner { position:relative; z-index:2; max-width:1200px; margin:0 auto; display:flex; gap:48px; flex-wrap:wrap; align-items:flex-start }
+    .hero-brand { flex:1 1 420px; min-width:260px; padding-top:28px }
+    /* "CineTour" deve restare su una riga sola: dimensione propria, più
+       contenuta della ".mega" generica, non la scala intera */
+    .hero-brand .mega span { text-shadow:0 2px 16px rgba(11,11,11,.5) }
+    .hero-brand .mega.openair { color: var(--ink) }
+
+    /* ── Card calendario (hero, desktop) ───────────────────────────── */
+    .calendar-card { flex:1 1 320px; min-width:280px; max-width:400px; background: var(--white); border-radius:12px; padding:22px; box-shadow:0 16px 40px rgba(11,11,11,.3); align-self:flex-end }
+    .calendar-card-title { font-size:.95rem; font-weight:800; text-transform:uppercase; margin-bottom:16px; color: var(--ink) }
+    .today-row { display:flex; align-items:stretch; gap:12px; padding:12px 8px; border-radius:8px; border-bottom:1px solid rgba(11,11,11,.08); color: var(--ink) }
+    .today-row:hover { background: var(--panna) }
+    .today-date { flex-shrink:0; white-space:nowrap; display:flex; flex-direction:column; justify-content:space-between }
+    .today-date .d { font-size:.74rem; font-weight:700; color: var(--red); line-height:1.25 }
+    .today-date .t { font-size:.76rem; color: var(--muted) }
+    .today-body { flex-grow:1; min-width:0; display:flex; flex-direction:column; justify-content:space-between }
+    .today-top { display:flex; align-items:center; gap:8px }
+    .today-title { font-size:.9rem; font-weight:700; flex-grow:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis }
+    .today-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0 }
+    .today-place { font-size:.76rem; color: var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis }
+    .calendar-more { display:block; text-align:center; margin-top:14px; font-size:.78rem; font-weight:700; color: var(--red) }
+
+    /* ── Cassetto mobile a 3 schede ─────────────────────────────────── */
+    .cal-drawer-backdrop { position:fixed; inset:0; background:rgba(11,11,11,.6); z-index:60; opacity:0; pointer-events:none; transition:opacity .25s }
+    .cal-drawer-backdrop.open { opacity:1; pointer-events:auto }
+    .cal-drawer { position:fixed; left:0; right:0; bottom:0; z-index:61; background: var(--white); border-radius:16px 16px 0 0; padding:22px max(5vw,24px) 28px; max-height:70vh; overflow-y:auto; transform:translateY(100%); transition:transform .3s cubic-bezier(.16,1,.3,1); box-shadow:0 -10px 30px rgba(11,11,11,.3) }
+    .cal-drawer.open { transform:translateY(0) }
+    .cal-drawer-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px }
+    .cal-drawer-head .title { font-size:.95rem; font-weight:800; text-transform:uppercase; color: var(--ink) }
+    .cal-drawer-close { width:32px; height:32px; border-radius:50%; background: var(--panna); border:0; font-size:.9rem; color: var(--ink); cursor:pointer }
+    .drawer-film-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px }
+    .drawer-film-grid img { width:100%; aspect-ratio:2/3; object-fit:cover; border-radius:6px; display:block }
+    .drawer-film-grid .t { font-size:.74rem; font-weight:700; margin-top:6px; color: var(--ink) }
+    .drawer-luogo-row { display:flex; align-items:center; gap:12px; padding:10px 8px; border-bottom:1px solid rgba(11,11,11,.08) }
+    .drawer-luogo-row img { width:52px; height:52px; border-radius:8px; object-fit:cover; flex-shrink:0 }
+    .drawer-luogo-row .n { font-size:.9rem; font-weight:700; color: var(--ink) }
+    .drawer-luogo-row .c { font-size:.76rem; color: var(--muted) }
+
+    .mobile-tabbar { display:none }
+    .tab-btn { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; padding:10px 4px 12px; border:0; border-right:1px solid rgba(255,253,248,.25); background: var(--red); font-size:.66rem; font-weight:700; letter-spacing:.02em; text-transform:uppercase; color: var(--white); cursor:pointer; font-family:inherit }
+    .tab-btn:last-child { border-right:0 }
+    .tab-btn.active { background: var(--ink) }
+    /* Soglia alta apposta: "CineTour" a dimensione piena scala con la
+       finestra e resta sempre al limite dello spazio accanto alla card,
+       non solo sotto i soliti 780px — meglio passare al cassetto mobile
+       prima piuttosto che rischiare la sovrapposizione */
+    @media (max-width:1300px) {
+      .calendar-card { display:none }
+      .mobile-tabbar { display:grid; grid-template-columns:repeat(3,1fr); position:fixed; left:0; right:0; bottom:0; z-index:55; background: var(--white); border-top:1px solid rgba(11,11,11,.12); box-shadow:0 -4px 16px rgba(11,11,11,.08); padding-bottom:env(safe-area-inset-bottom) }
+      body { padding-bottom:62px }
+    }
+
+    /* ── Statistiche ────────────────────────────────────────────────── */
+    .stats-row { display:flex; gap:40px; flex-wrap:wrap; margin-top:40px }
+    .stat-num { font-size:1.8rem; font-weight:800; color: var(--red) }
+    .stat-label { font-size:.72rem; color: var(--muted); text-transform:uppercase; letter-spacing:.04em; margin-top:4px }
+    /* I 3 numeri restano sempre su un'unica riga: l'etichetta sotto va su
+       due righe invece di spingere le colonne a capo */
+    @media (max-width:780px) {
+      .stats-row { display:grid; grid-template-columns:repeat(3,1fr); gap:8px 14px }
+      .stat-label { line-height:1.3 }
+    }
+
+    /* ── Timeline ondulata ──────────────────────────────────────────── */
+    .tl-track { scrollbar-width:thin; margin-top:30px; overflow-x:auto; padding:10px max(5vw,24px) 30px; scroll-snap-type:x proximity }
+    .tl-track::-webkit-scrollbar { height:6px }
+    .tl-track::-webkit-scrollbar-thumb { background:rgba(11,11,11,.2); border-radius:3px }
+    .tl-wave-zone { position:relative; height:140px }
+    .tl-dot { position:absolute; transform:translate(-50%,-50%); border-radius:50%; transition:opacity .25s,transform .25s }
+    .tl-labels { display:flex }
+    .tl-stop { scroll-snap-align:center; flex-shrink:0; width:220px; text-align:center; transition:opacity .25s }
+    .tl-stop .d { font-size:.78rem; font-weight:700; color: var(--red) }
+    .tl-stop .l { font-size:1rem; font-weight:800; margin-top:4px; color: var(--ink) }
+    .tl-stop .c { font-size:.78rem; color: var(--muted); margin-top:2px }
+    @keyframes drawWave { to { stroke-dashoffset:0 } }
+    .wave-path { animation: drawWave 2.4s ease-out .2s forwards }
+
+    /* ── Legenda e griglia eventi ───────────────────────────────────── */
+    .legend-row { display:flex; gap:22px; flex-wrap:wrap; font-size:.76rem; color: var(--muted) }
+    .legend-row span.item { display:flex; align-items:center; gap:7px }
+    .legend-dot { width:8px; height:8px; border-radius:50%; display:inline-block }
+    .event-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:26px }
+    .event-card { background: var(--white); border:1px solid rgba(11,11,11,.12); border-radius:10px; overflow:hidden; display:flex; flex-direction:column; transition:border-color .2s,box-shadow .2s }
+    .event-card:hover { border-color: var(--red); box-shadow:0 6px 20px rgba(11,11,11,.08) }
+    .event-media { position:relative; aspect-ratio:16/9; background: var(--panna) }
+    .event-media img { width:100%; height:100%; object-fit:cover; display:block }
+    .badge { position:absolute; top:12px; display:flex; align-items:center; gap:6px; padding:6px 12px; border-radius:20px; font-size:.68rem; font-weight:700; letter-spacing:.04em; text-transform:uppercase }
+    .badge.status { right:12px; background:rgba(255,253,248,.92); backdrop-filter:blur(4px); box-shadow:0 2px 8px rgba(11,11,11,.1) }
+    .badge.price { left:12px; color: var(--white); box-shadow:0 2px 8px rgba(11,11,11,.15) }
+    .event-body { padding:22px; display:flex; flex-direction:column; gap:14px; flex-grow:1; color: var(--ink) }
+    .event-title { font-size:1.15rem; font-weight:800; text-transform:uppercase; letter-spacing:-.01em }
+    .event-meta { display:flex; flex-direction:column; gap:8px; font-size:.86rem; color:#4a4540 }
+    .event-meta .row { display:flex; align-items:center; gap:8px }
+    .event-meta .row.place { align-items:flex-start }
+    .event-meta .ico { color: var(--red) }
+    .event-foot { margin-top:auto; padding-top:14px; border-top:1px solid rgba(11,11,11,.12); display:flex; align-items:center; justify-content:space-between }
+    .event-foot .details { font-size:.78rem; font-weight:700; color: var(--red); letter-spacing:.02em }
+    .event-foot .maps { font-size:.74rem; color: var(--muted) }
+    .event-foot .maps:hover { color: var(--ink) }
+
+    /* ── Card foto (ricordi / luoghi) ───────────────────────────────── */
+    .recap-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:20px }
+    .recap-card { border-radius:10px; overflow:hidden; position:relative; aspect-ratio:3/4 }
+    .recap-card img { width:100%; height:100%; object-fit:cover; display:block }
+    .recap-scrim { position:absolute; inset:0; background:linear-gradient(180deg,transparent 50%,rgba(11,11,11,.82) 100%) }
+    .recap-caption { position:absolute; left:0; right:0; bottom:0; padding:18px; color: var(--white) }
+    .recap-caption .t { font-size:.95rem; font-weight:800; text-transform:uppercase }
+    .recap-caption .m { font-size:.76rem; color: var(--panna); opacity:.85; margin-top:2px }
+
+    .luogo-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:20px }
+    .luogo-card { background: var(--white); border:1px solid rgba(11,11,11,.12); border-radius:10px; overflow:hidden }
+    .luogo-card img { width:100%; aspect-ratio:4/3; object-fit:cover; display:block }
+    .luogo-card .body { padding:16px }
+    .luogo-card .n { font-size:.95rem; font-weight:800; color: var(--ink) }
+    .luogo-card .c { font-size:.78rem; color: var(--muted); margin-top:2px }
+    .luogo-card .note { font-size:.78rem; color:#4a4540; margin-top:8px }
+
+    .film-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:20px }
+    .film-grid img { width:100%; aspect-ratio:2/3; object-fit:cover; border-radius:8px; display:block }
+    .film-grid .t { font-size:.88rem; font-weight:700; margin-top:10px }
+    .film-grid .g { font-size:.74rem; color: var(--muted-dark) }
+
+    .sponsor-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:16px }
+    .sponsor-tile { background: var(--white); border:1px solid rgba(11,11,11,.12); border-radius:10px; padding:26px 16px; display:flex; align-items:center; justify-content:center; text-align:center; font-size:.84rem; font-weight:700; color:#4a4540 }
+
+    .newsletter-box { background: var(--surf); border:1px solid rgba(255,253,248,.14); border-radius:16px; padding:52px max(5vw,36px); display:flex; flex-wrap:wrap; gap:28px; align-items:center; justify-content:space-between }
+    .newsletter-box .copy { max-width:440px }
+    .newsletter-box .copy .h { font-size:1.3rem; font-weight:800; text-transform:uppercase; color: var(--white) }
+    .newsletter-box .copy p { margin:10px 0 0; font-size:.92rem; color:#c9c5bc; line-height:1.55 }
+    .newsletter-form { display:flex; gap:10px; flex-wrap:wrap; flex:1 1 320px; max-width:440px }
+    .newsletter-form input { flex:1 1 220px; background: var(--ink); border:1px solid rgba(255,253,248,.18); border-radius:6px; padding:14px 16px; color: var(--white); font-size:.9rem; font-family:inherit }
+    .newsletter-form input:focus { outline:2px solid var(--red); outline-offset:1px }
+    .newsletter-form button { background: var(--red); color: var(--white); border:0; border-radius:6px; padding:14px 24px; font-size:.84rem; font-weight:700; letter-spacing:.04em; text-transform:uppercase; cursor:pointer; transition:background .2s; font-family:inherit }
+    .newsletter-form button:hover { background: var(--red-deep) }
+
+    .social-row { display:flex; justify-content:center; gap:14px; margin-top:28px; flex-wrap:wrap }
+    .social-link { width:48px; height:48px; border-radius:50%; background: var(--white); border:1px solid rgba(11,11,11,.14); display:flex; align-items:center; justify-content:center; font-size:1.1rem; transition:transform .2s,border-color .2s }
+    .social-link:hover { transform:translateY(-3px); border-color: var(--red) }
+
+    /* ── Footer — stesso linguaggio di cinema-ambulante.ch: logo + titolo
+       sopra una riga di pillole (icona + etichetta), poi la barra
+       inferiore con copyright e link ───────────────────────────────── */
+    footer.site-footer { padding:70px max(5vw,20px) 40px; border-top:1px solid rgba(255,253,248,.14) }
+    .footer-top { width:min(100%,1200px); margin-inline:auto; display:flex; flex-direction:column; align-items:center; gap:28px; text-align:center }
+    .footer-logo { display:block; width:44px; margin-bottom:6px }
+    .footer-logo img { display:block; width:100%; height:auto }
+    .footer-title { margin:0; max-width:420px; font-size:clamp(1.3rem,2.2vw,1.9rem); line-height:1.05; letter-spacing:-.02em; text-transform:uppercase; color:#8a8a8a }
+    .footer-title .accent { color: var(--red) }
+    .footer-pills { display:flex; flex-wrap:wrap; justify-content:center; align-items:stretch }
+    .footer-pill { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; border:0; background:transparent; color: var(--white); text-decoration:none; font:inherit; padding:4px 22px; cursor:pointer; text-align:center; transition:opacity .2s }
+    .footer-pill:hover { opacity:.75 }
+    .footer-pill-icon { width:22px; height:22px; color: var(--red) }
+    .footer-pill-label { display:flex; flex-direction:column; gap:3px; font-size:.72rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; white-space:nowrap }
+    .footer-pill-sep { width:1px; align-self:stretch; background:rgba(255,253,248,.14) }
+    .footer-bottom { width:min(100%,1200px); margin:50px auto 0; padding-top:24px; border-top:1px solid rgba(255,253,248,.14); display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap; font-size:.74rem; color: var(--muted-dark); letter-spacing:.04em }
+    .footer-bottom a:hover { color: var(--red) }
+    @media (max-width:620px) {
+      .footer-pill-sep { display:none }
+      .footer-pill { padding:6px 16px }
+      .footer-bottom { flex-direction:column; align-items:center; text-align:center; gap:10px }
+    }
+  </style>
+</head>
+<body style="background:linear-gradient(180deg,#f2ede4 0%,#f2ede4 42%,#4a4038 52%,#0b0b0b 62%,#0b0b0b 100%)">
+
+  <header>
+    <a href="index.html"><img class="logo" src="img/logo.png" alt="Cinetour.ch"></a>
+    <nav class="main-nav">
+      <a href="index.html" class="active">Calendario</a>
+      <a href="#">Come funziona</a>
+      <a href="#">Chi siamo</a>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <img class="hero-bg" src="img/hero-bg.jpg" alt="">
+    <div class="hero-scrim"></div>
+    <div class="hero-inner">
+      <div class="hero-brand">
+        <div class="eyebrow"><span></span>Il cinema all'aperto itinerante</div>
+        <h1 class="mega"><span style="color:#fffdf8">Cine</span><span style="color:#e9342f">Tour</span></h1>
+        <div class="mega openair">Open Air</div>
+      </div>
+      <div class="calendar-card" id="calendarCardDesktop">
+        <div class="calendar-card-title">Calendario</div>
+        <div id="todayListDesktop"></div>
+        <a href="#calendario" class="calendar-more">Scopri di più →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Cassetto mobile a 3 schede -->
+  <div class="cal-drawer-backdrop" id="drawerBackdrop"></div>
+  <div class="cal-drawer" id="drawer">
+    <div class="cal-drawer-head">
+      <div class="title" id="drawerTitle">Calendario</div>
+      <button class="cal-drawer-close" id="drawerClose" aria-label="Chiudi">✕</button>
+    </div>
+    <div id="drawerCalendario"><div id="todayListDrawer"></div></div>
+    <div id="drawerFilm" class="drawer-film-grid" style="display:none"></div>
+    <div id="drawerLuogo" style="display:none"></div>
+  </div>
+
+  <div class="mobile-tabbar">
+    <button class="tab-btn active" data-tab="calendario">📅 Calendario</button>
+    <button class="tab-btn" data-tab="film">🎬 Film</button>
+    <button class="tab-btn" data-tab="luogo">📍 Luogo</button>
+  </div>
+
+  <div class="section" style="padding-top:48px">
+    <p class="sub" style="margin-top:0">Il grande evento estivo, dove i luoghi si trasformano, le persone si incontrano e il cinema emoziona.</p>
+    <div class="stats-row">
+      <div><div class="stat-num">30+</div><div class="stat-label">Anni di successo</div></div>
+      <div><div class="stat-num">100+</div><div class="stat-label">Proiezioni estive l'anno</div></div>
+      <div><div class="stat-num">80+</div><div class="stat-label">Luoghi diversi</div></div>
+    </div>
+  </div>
+
+  <div style="padding:90px 0 0;color:var(--ink)">
+    <div class="section" style="padding-top:0">
+      <div class="eyebrow-amb"><span></span>Segui il nostro viaggio</div>
+      <h2 class="title-amb" style="margin-bottom:8px">Tappa dopo <span class="accent">tappa</span>.</h2>
+      <p style="margin:0;font-size:.9rem;color:var(--muted)">Scorri per seguire il percorso del cinema itinerante attraverso il Ticino.</p>
+    </div>
+    <div class="tl-track" id="tlTrack">
+      <div class="tl-wave-zone" id="tlWaveZone">
+        <svg id="tlSvg" style="position:absolute;left:0;top:0;overflow:visible">
+          <g id="tlContours"></g>
+          <path id="tlRailPath" fill="none" stroke="none"></path>
+          <path id="tlPath" fill="none" stroke="#e9342f" stroke-width="3" stroke-linecap="round" class="wave-path"></path>
+          <g id="tlTrain">
+            <g transform="translate(-13,-8)">
+              <rect x="0" y="4" width="22" height="9" rx="2" fill="#0b0b0b"></rect>
+              <rect x="2" y="0" width="8" height="5" rx="1" fill="#0b0b0b"></rect>
+              <circle cx="5" cy="14" r="2.4" fill="#0b0b0b"></circle>
+              <circle cx="17" cy="14" r="2.4" fill="#0b0b0b"></circle>
+              <circle cx="20" cy="8" r="1.4" fill="#e9342f"></circle>
+            </g>
+            <animateMotion dur="38s" repeatCount="indefinite" rotate="auto">
+              <mpath href="#tlRailPath"></mpath>
+            </animateMotion>
+          </g>
+        </svg>
+      </div>
+      <div class="tl-labels" id="tlLabels"></div>
+    </div>
+  </div>
+
+  <div class="section" id="calendario" style="padding-top:130px;color:var(--ink)">
+    <div class="eyebrow-amb"><span></span>Calendario</div>
+    <h2 class="title-amb">Tutte le <span class="accent">proiezioni</span>.</h2>
+  </div>
+
+  <div class="section legend-row" style="padding-top:28px">
+    <span class="item"><span class="legend-dot" style="background:#1f8a52"></span>Confermato</span>
+    <span class="item"><span class="legend-dot" style="background:#9c6a0c"></span>In attesa</span>
+    <span class="item"><span class="legend-dot" style="background:#9c968e"></span>Annullato</span>
+  </div>
+
+  <div class="section" style="padding-top:28px">
+    <div class="event-grid" id="eventGrid"></div>
+  </div>
+
+  <div class="section" style="padding-top:110px;color:var(--ink)">
+    <div class="eyebrow-amb"><span></span>Ricordi</div>
+    <h2 class="title-amb" style="margin-bottom:32px">Serate <span class="accent">magiche</span>.</h2>
+    <div class="recap-grid" id="recapGrid"></div>
+  </div>
+
+  <div class="section" style="padding-top:110px;color:#fffdf8">
+    <div class="eyebrow-amb"><span></span>Dove andiamo</div>
+    <h2 class="title-amb" style="margin-bottom:32px">I luoghi che <span class="accent">visitiamo</span>.</h2>
+    <div class="luogo-grid" id="luogoGrid"></div>
+  </div>
+
+  <div class="section" style="padding-top:130px;color:#fffdf8">
+    <div class="eyebrow-amb"><span></span>In arrivo</div>
+    <h2 class="title-amb" style="margin-bottom:32px">I film in <span class="accent">programma</span>.</h2>
+    <div class="film-grid" id="filmGrid"></div>
+  </div>
+
+  <div class="section" style="padding-top:130px;color:#fffdf8">
+    <div class="eyebrow-amb"><span></span>Con il sostegno di</div>
+    <h2 class="title-amb" style="margin-bottom:32px">Sponsor e <span class="accent">partner</span>.</h2>
+    <div class="sponsor-grid" id="sponsorGrid"></div>
+  </div>
+
+  <div class="section" style="padding-top:130px;max-width:1200px">
+    <div class="newsletter-box">
+      <div class="copy">
+        <div class="h">Non perderti nessuna serata</div>
+        <p>Iscriviti alla newsletter: nuove date, location e film in anteprima, direttamente nella tua casella email.</p>
+      </div>
+      <form class="newsletter-form" id="newsletterForm">
+        <input type="email" placeholder="La tua email" required>
+        <button type="submit">Iscriviti</button>
+      </form>
+    </div>
+  </div>
+
+  <div style="max-width:800px;margin:0 auto;padding:130px max(5vw,24px) 100px;text-align:center;color:#fffdf8">
+    <div class="eyebrow-amb" style="justify-content:center"><span></span>Seguici</div>
+    <h2 class="title-amb" style="margin-bottom:16px">Cinetour è anche sulla tua <span class="accent">piattaforma</span> preferita.</h2>
+    <p style="margin:0 auto;max-width:560px;font-size:.98rem;color:#d8d6d0;line-height:1.65">Scopri Cinetour sui tuoi canali social preferiti! Seguici per rimanere aggiornato su tutte le novità, gli eventi e le esclusive anteprime cinematografiche. Partecipa alla nostra community online e non perderti mai un momento di magia cinematografica!</p>
+    <div class="social-row">
+      <a class="social-link" href="#" aria-label="Instagram">📷</a>
+      <a class="social-link" href="#" aria-label="Facebook">📘</a>
+      <a class="social-link" href="#" aria-label="YouTube">▶️</a>
+      <a class="social-link" href="#" aria-label="TikTok">🎵</a>
+    </div>
+  </div>
+
+  <footer class="site-footer" id="contatti">
+    <div class="footer-top">
+      <span class="footer-logo" aria-hidden="true"><img src="img/mark.png" alt=""></span>
+      <h3 class="footer-title">Cinetour<span class="accent">.ch</span></h3>
+      <div class="footer-pills">
+        <a class="footer-pill" href="#calendario">
+          <svg class="footer-pill-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2" stroke="currentColor" stroke-width="2"/><path d="M3 10h18M8 3v4M16 3v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          <span class="footer-pill-label">Tutte le proiezioni</span>
+        </a>
+        <span class="footer-pill-sep" aria-hidden="true"></span>
+        <a class="footer-pill" href="https://www.cinema-ambulante.ch" target="_blank" rel="noopener">
+          <svg class="footer-pill-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span class="footer-pill-label">Cinematografo Ambulante</span>
+        </a>
+        <span class="footer-pill-sep" aria-hidden="true"></span>
+        <a class="footer-pill" href="https://www.cinemamultisalateatro.ch" target="_blank" rel="noopener">
+          <svg class="footer-pill-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span class="footer-pill-label">Cinema Multisala Teatro</span>
+        </a>
+        <span class="footer-pill-sep" aria-hidden="true"></span>
+        <a class="footer-pill" href="tel:+41916461654">
+          <svg class="footer-pill-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M6.6 10.8c1.4 2.8 3.8 5.2 6.6 6.6l2.2-2.2c.3-.3.7-.4 1.1-.2 1.2.4 2.5.6 3.8.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1C10.6 21 3 13.4 3 4c0-.6.4-1 1-1h3.4c.6 0 1 .4 1 1 0 1.3.2 2.6.6 3.8.1.4 0 .8-.2 1.1L6.6 10.8Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+          <span class="footer-pill-label">+41 091 646 16 54</span>
+        </a>
+        <span class="footer-pill-sep" aria-hidden="true"></span>
+        <a class="footer-pill" href="mailto:info@cinetour.ch">
+          <svg class="footer-pill-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" stroke-width="2"/><path d="m4 7 8 6 8-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span class="footer-pill-label">info@cinetour.ch</span>
+        </a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Cinetour.ch — un progetto del Cinematografo Ambulante</span>
+      <a href="https://www.cinema-ambulante.ch/privacy.html" target="_blank" rel="noopener">Privacy Policy</a>
+      <span>Mendrisio · Ticino · Svizzera</span>
+    </div>
+  </footer>
+
+<script type="module">
+// Dati di esempio: in attesa del pannello admin (gestione.html → Cinetour),
+// qui restano statici ma la struttura ricalca già lo schema cinetourEventi
+// discusso per il backend, pronta per essere sostituita da una lettura
+// Firestore senza toccare il markup/i renderer qui sotto.
+const eventi = [
+  { titolo:"La vita è bella", img:"img/hero-bg.jpg", dataLabel:"Sab 12 luglio 2026", ora:"21:30", luogo:"Parco Ciani", via:"Riva Caccia 1, Lugano", mapsUrl:"https://maps.google.com/?q=Parco+Ciani+Lugano", statusLabel:"Confermato", statusDot:"#1f8a52", statusText:"#1f8a52", prezzoLabel:"Gratuito", prezzoColor:"#1f8a52", opacity:1 },
+  { titolo:"Cinema Paradiso", img:"img/sample-cinema-paradiso.jpg", dataLabel:"Ven 18 luglio 2026", ora:"21:15", luogo:"Piazza del Mercato", via:"Via Vecchio Ginnasio, Mendrisio", mapsUrl:"https://maps.google.com/?q=Piazza+del+Mercato+Mendrisio", statusLabel:"In attesa", statusDot:"#9c6a0c", statusText:"#9c6a0c", prezzoLabel:"CHF 10.–", prezzoColor:"#0b0b0b", opacity:1 },
+  { titolo:"Up", img:"img/sample-up.jpg", dataLabel:"Mer 23 luglio 2026", ora:"21:15", luogo:"Giardino Pubblico", via:"Viale Stazione, Bellinzona", mapsUrl:"https://maps.google.com/?q=Giardino+Pubblico+Bellinzona", statusLabel:"Confermato", statusDot:"#1f8a52", statusText:"#1f8a52", prezzoLabel:"Gratuito", prezzoColor:"#1f8a52", opacity:1 },
+  { titolo:"Il postino", img:"img/sample-postino.jpg", dataLabel:"Lun 28 luglio 2026", ora:"21:00", luogo:"Lido comunale", via:"Via alla Riva 16, Locarno", mapsUrl:"https://maps.google.com/?q=Lido+Locarno", statusLabel:"Annullato — maltempo", statusDot:"#9c968e", statusText:"#726c62", prezzoLabel:"Gratuito", prezzoColor:"#1f8a52", opacity:.6 }
+];
+
+const oggi = [
+  { dataBreve:"Sab 12 lug", ora:"21:30", titolo:"La vita è bella", luogo:"Parco Ciani, Lugano", statusDot:"#1f8a52" },
+  { dataBreve:"Ven 18 lug", ora:"21:15", titolo:"Cinema Paradiso", luogo:"Piazza del Mercato, Mendrisio", statusDot:"#9c6a0c" },
+  { dataBreve:"Mer 23 lug", ora:"21:15", titolo:"Up", luogo:"Giardino Pubblico, Bellinzona", statusDot:"#1f8a52" }
+];
+
+const serateRecap = [
+  { titolo:"Mamma Mia!", luogo:"Piazza Grande, Bellinzona", data:"3 luglio", img:"img/sample-cinema-paradiso.jpg" },
+  { titolo:"Amélie", luogo:"Parco Ciani, Lugano", data:"8 luglio", img:"img/hero-bg.jpg" },
+  { titolo:"Ratatouille", luogo:"Lido, Locarno", data:"15 luglio", img:"img/sample-up.jpg" },
+  { titolo:"Grease", luogo:"Giardino Pubblico, Chiasso", data:"20 luglio", img:"img/sample-postino.jpg" }
+];
+
+const luoghi = [
+  { nome:"Parco Ciani", comune:"Lugano", note:"Prato panoramico sul lago, oltre 300 posti", img:"img/sample-luogo.jpg" },
+  { nome:"Piazza del Mercato", comune:"Mendrisio", note:"Centro storico, accesso pedonale", img:"img/sample-cinema-paradiso.jpg" },
+  { nome:"Giardino Pubblico", comune:"Bellinzona", note:"Ai piedi dei tre castelli", img:"img/hero-bg.jpg" },
+  { nome:"Lido comunale", comune:"Locarno", note:"Vista sul Lago Maggiore", img:"img/sample-up.jpg" }
+];
+
+const filmProssimi = [
+  { titolo:"Grease", genere:"Musical", anno:"1978", poster:"img/sample-up.jpg" },
+  { titolo:"La La Land", genere:"Musical", anno:"2016", poster:"img/sample-postino.jpg" },
+  { titolo:"Ratatouille", genere:"Animazione", anno:"2007", poster:"img/sample-cinema-paradiso.jpg" },
+  { titolo:"Jurassic Park", genere:"Avventura", anno:"1993", poster:"img/hero-bg.jpg" }
+];
+
+const tappeData = [
+  { data:"12 lug", luogo:"Parco Ciani", comune:"Lugano" },
+  { data:"18 lug", luogo:"Piazza del Mercato", comune:"Mendrisio" },
+  { data:"23 lug", luogo:"Giardino Pubblico", comune:"Bellinzona" },
+  { data:"28 lug", luogo:"Lido comunale", comune:"Locarno" },
+  { data:"2 ago", luogo:"Piazza Boffalora", comune:"Chiasso" },
+  { data:"8 ago", luogo:"Lungolago", comune:"Ascona" },
+  { data:"15 ago", luogo:"Piazza Collegiata", comune:"Bellinzona" }
+];
+
+const sponsor = ["Comune di Lugano","Migros Ticino","RSI","Banca dello Stato","Repubblica e Cantone Ticino","Pro Ticino"];
+const social = ["📷","📘","▶️","🎵"];
+
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+function todayRowHtml(o){
+  return `<a href="evento.html" class="today-row">
+    <div class="today-date"><div class="d">${esc(o.dataBreve)}</div><div class="t">${esc(o.ora)}</div></div>
+    <div class="today-body">
+      <div class="today-top"><span class="today-title">${esc(o.titolo)}</span><span class="today-dot" style="background:${o.statusDot}"></span></div>
+      <div class="today-place">${esc(o.luogo)}</div>
+    </div>
+  </a>`;
+}
+document.getElementById('todayListDesktop').innerHTML = oggi.map(todayRowHtml).join('');
+document.getElementById('todayListDrawer').innerHTML = oggi.map(todayRowHtml).join('');
+
+document.getElementById('eventGrid').innerHTML = eventi.map(ev => `
+  <div class="event-card" style="opacity:${ev.opacity}">
+    <div class="event-media">
+      <img src="${esc(ev.img)}" alt="" loading="lazy">
+      <div class="badge status"><span class="legend-dot" style="background:${ev.statusDot}"></span><span style="color:${ev.statusText}">${esc(ev.statusLabel)}</span></div>
+      <div class="badge price" style="background:${ev.prezzoColor}">${esc(ev.prezzoLabel)}</div>
+    </div>
+    <div class="event-body">
+      <div class="event-title">${esc(ev.titolo)}</div>
+      <div class="event-meta">
+        <div class="row"><span class="ico">📅</span>${esc(ev.dataLabel)} · ${esc(ev.ora)}</div>
+        <div class="row place"><span class="ico">📍</span><span>${esc(ev.luogo)}<br><span style="color:var(--muted);font-size:.8rem">${esc(ev.via)}</span></span></div>
+      </div>
+      <div class="event-foot">
+        <a href="evento.html" class="details">Vedi dettagli →</a>
+        <a class="maps" href="${esc(ev.mapsUrl)}" target="_blank" rel="noopener">Apri in Maps ↗</a>
+      </div>
+    </div>
+  </div>
+`).join('');
+
+document.getElementById('recapGrid').innerHTML = serateRecap.map(s => `
+  <div class="recap-card">
+    <img src="${esc(s.img)}" alt="" loading="lazy">
+    <div class="recap-scrim"></div>
+    <div class="recap-caption"><div class="t">${esc(s.titolo)}</div><div class="m">${esc(s.luogo)} · ${esc(s.data)}</div></div>
+  </div>
+`).join('');
+
+document.getElementById('luogoGrid').innerHTML = luoghi.map(l => `
+  <div class="luogo-card">
+    <img src="${esc(l.img)}" alt="" loading="lazy">
+    <div class="body"><div class="n">${esc(l.nome)}</div><div class="c">${esc(l.comune)}</div><div class="note">${esc(l.note)}</div></div>
+  </div>
+`).join('');
+
+function filmCardHtml(f, small){
+  return `<div><img src="${esc(f.poster)}" alt="" loading="lazy">${small ? `<div class="t">${esc(f.titolo)}</div>` : `<div class="t">${esc(f.titolo)}</div><div class="g">${esc(f.genere)} · ${esc(f.anno)}</div>`}</div>`;
+}
+document.getElementById('filmGrid').innerHTML = filmProssimi.map(f => filmCardHtml(f,false)).join('');
+document.getElementById('drawerFilm').innerHTML = filmProssimi.map(f => filmCardHtml(f,true)).join('');
+
+document.getElementById('drawerLuogo').innerHTML = luoghi.map(l => `
+  <div class="drawer-luogo-row">
+    <img src="${esc(l.img)}" alt="" loading="lazy">
+    <div><div class="n">${esc(l.nome)}</div><div class="c">${esc(l.comune)}</div></div>
+  </div>
+`).join('');
+
+document.getElementById('sponsorGrid').innerHTML = sponsor.map(n => `<div class="sponsor-tile">${esc(n)}</div>`).join('');
+
+// ── Timeline ondulata: due onde sovrapposte (una ampia per le
+// "montagne", una piccola per increspare le "pianure"), disegnata con
+// un'animazione stroke-dashoffset all'ingresso ─────────────────────────
+const STOP_W = 220;
+const tlWidth = tappeData.length * STOP_W;
+function waveY(x){
+  const y = 70 + 38 * Math.sin(x / 190) + 16 * Math.sin(x / 60 + 1.3);
+  return Math.max(18, Math.min(122, y));
+}
+let wavePathD = '';
+for (let x = 0; x <= tlWidth; x += 8) wavePathD += (x === 0 ? 'M' : 'L') + x + ',' + waveY(x).toFixed(1) + ' ';
+const waveLen = Math.round(tlWidth * 1.2);
+
+const tlWaveZone = document.getElementById('tlWaveZone');
+const tlSvg = document.getElementById('tlSvg');
+const tlPath = document.getElementById('tlPath');
+const tlLabels = document.getElementById('tlLabels');
+tlWaveZone.style.width = tlWidth + 'px';
+tlSvg.setAttribute('width', tlWidth);
+tlSvg.setAttribute('height', 140);
+tlPath.setAttribute('d', wavePathD);
+tlPath.style.strokeDasharray = waveLen;
+tlPath.style.strokeDashoffset = waveLen;
+
+// Sfondo in stile mappa topografica, puramente decorativo: anelli di
+// curve di livello (colline) invece di onde orizzontali — chiuse e
+// concentriche, così si leggono come rilievo e non come "mare" — più
+// laghetti e casette vicino alle tappe che li hanno davvero (lungolago,
+// piazze dei paesi), tutto molto tenue per restare sotto la linea rossa
+const tlContours = document.getElementById('tlContours');
+const svgNS = 'http://www.w3.org/2000/svg';
+function addPath(d, { fill = 'none', stroke = 'none', strokeWidth = 1, opacity = 1 } = {}) {
+  const p = document.createElementNS(svgNS, 'path');
+  p.setAttribute('d', d);
+  p.setAttribute('fill', fill);
+  if (stroke !== 'none') { p.setAttribute('stroke', stroke); p.setAttribute('stroke-width', strokeWidth); }
+  p.setAttribute('opacity', opacity);
+  tlContours.appendChild(p);
+  return p;
+}
+// Un anello di curva di livello irregolare (non un cerchio perfetto):
+// jitter del raggio via due sinusoidi d'angolo, sempre chiuso con Z
+function ringPath(cx, cy, rx, ry, jitter) {
+  const pts = [];
+  const steps = 18;
+  for (let i = 0; i <= steps; i++) {
+    const a = (i / steps) * Math.PI * 2;
+    const j = 1 + jitter * Math.sin(a * 3 + cx * 0.01) + jitter * 0.5 * Math.sin(a * 5 + cy * 0.02);
+    pts.push([cx + Math.cos(a) * rx * j, cy + Math.sin(a) * ry * j]);
+  }
+  return 'M' + pts.map(p => p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' L') + ' Z';
+}
+function hillContours(cx, cy) {
+  [[34, 22], [24, 15], [14, 9]].forEach(([rx, ry], i) => {
+    addPath(ringPath(cx, cy, rx, ry, 0.12), { stroke: '#0b0b0b', strokeWidth: 1, opacity: 0.1 });
+  });
+}
+function lakeBlob(cx, cy) {
+  addPath(ringPath(cx, cy, 26, 14, 0.18), { fill: '#7a9ba8', opacity: 0.16 });
+}
+function houseCluster(cx, cy, offsets) {
+  offsets.forEach(([dx, dy]) => {
+    const x = cx + dx, y = cy + dy, w = 9, h = 7;
+    const d = `M${x-w/2},${y+h/2} L${x-w/2},${y-h/2+2} L${x},${y-h/2-4} L${x+w/2},${y-h/2+2} L${x+w/2},${y+h/2} Z`;
+    addPath(d, { fill: '#0b0b0b', opacity: 0.12 });
+  });
+}
+// Una stradina che tocca qualche punto intermedio (jitter verticale
+// leggero), non una retta — collega i nuclei come farebbe una mappa
+function roadPath(x1, y1, x2, y2) {
+  const midX = (x1 + x2) / 2, midY = (y1 + y2) / 2 + (Math.sin(x1 * 0.05) * 8);
+  return `M${x1},${y1} Q${midX},${midY} ${x2},${y2}`;
+}
+
+// Colline sparse, atmosferiche
+hillContours(STOP_W * 0.5, 50);
+hillContours(STOP_W * 1.8, 112);
+hillContours(STOP_W * 2.6, 95);
+hillContours(STOP_W * 4.1, 108);
+hillContours(STOP_W * 5.4, 45);
+hillContours(STOP_W * 6.3, 100);
+
+// Laghetti vicino alle tappe sul lago: Lido comunale (Locarno, 3) e
+// Lungolago (Ascona, 5)
+const lakeAt = {};
+[3, 5].forEach(i => {
+  const cx = i * STOP_W + STOP_W / 2 + 60, cy = 115;
+  lakeBlob(cx, cy);
+  lakeAt[i] = [cx, cy];
+});
+
+// Nuclei abitati: ogni tappa ha vicino un piccolo gruppo di case — più
+// grande per le piazze dei paesi, più piccolo (frazione) per le altre
+const bigVillageOffsets = [[-22, 6], [-8, -8], [8, -10], [22, 5], [0, 10]];
+const hamletOffsets = [[-6, 2], [6, -3]];
+const houseAt = {};
+tappeData.forEach((t, i) => {
+  const cx = i * STOP_W + STOP_W / 2 - 55, cy = 30;
+  const isPiazza = [1, 4, 6].includes(i);
+  houseCluster(cx, cy, isPiazza ? bigVillageOffsets : hamletOffsets);
+  houseAt[i] = [cx, cy];
+});
+
+// La ferrovia segue esattamente la stessa strada che collega i nuclei
+// abitati (non una linea a parte): campiono la stessa curva usata per
+// la strada, cosi il trenino passa proprio dove ci sono le case
+function quadPoint(t, x1, y1, mx, my, x2, y2) {
+  const u = 1 - t;
+  return [u*u*x1 + 2*u*t*mx + t*t*x2, u*u*y1 + 2*u*t*my + t*t*y2];
+}
+let railPts = [];
+for (let i = 0; i < tappeData.length - 1; i++) {
+  const [x1, y1] = houseAt[i], [x2, y2] = houseAt[i + 1];
+  const mx = (x1 + x2) / 2, my = (y1 + y2) / 2 + (Math.sin(x1 * 0.05) * 8);
+  const steps = 16;
+  for (let s = (i === 0 ? 0 : 1); s <= steps; s++) railPts.push(quadPoint(s / steps, x1, y1, mx, my, x2, y2));
+}
+const railD = railPts.map((p, i) => (i === 0 ? 'M' : 'L') + p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ');
+document.getElementById('tlRailPath').setAttribute('d', railD);
+addPath(railD, { stroke: '#0b0b0b', strokeWidth: 1, opacity: 0.16 });
+// Traversine perpendicolari alla direzione locale del binario
+for (let i = 1; i < railPts.length - 1; i += 2) {
+  const [x, y] = railPts[i];
+  const [px, py] = railPts[i - 1], [nx, ny] = railPts[i + 1];
+  const dx = nx - px, dy = ny - py;
+  const len = Math.hypot(dx, dy) || 1;
+  const tx = -dy / len, ty = dx / len; // normale perpendicolare
+  addPath(`M${(x-tx*4).toFixed(1)},${(y-ty*4).toFixed(1)} L${(x+tx*4).toFixed(1)},${(y+ty*4).toFixed(1)}`, { stroke: '#0b0b0b', strokeWidth: 1, opacity: 0.16 });
+}
+document.getElementById('tlTrain').setAttribute('opacity', '0.55');
+
+// Diramazioni stradali separate verso i laghetti (non la ferrovia)
+[3, 5].forEach(i => {
+  if (lakeAt[i] && houseAt[i]) {
+    addPath(roadPath(houseAt[i][0], houseAt[i][1], lakeAt[i][0], lakeAt[i][1]), { stroke: '#0b0b0b', strokeWidth: 1, opacity: 0.1 });
+  }
+});
+
+let activeIndex = 2;
+const dots = tappeData.map((t, i) => {
+  const dot = document.createElement('div');
+  dot.className = 'tl-dot';
+  tlWaveZone.appendChild(dot);
+  return dot;
+});
+tlLabels.innerHTML = tappeData.map((t,i) => `
+  <div class="tl-stop" data-i="${i}">
+    <div class="d">${esc(t.data)}</div>
+    <div class="l">${esc(t.luogo)}</div>
+    <div class="c">${esc(t.comune)}</div>
+  </div>
+`).join('');
+const stopEls = Array.from(tlLabels.children);
+
+function renderTimeline(){
+  tappeData.forEach((t, i) => {
+    const active = i === activeIndex;
+    const dotX = i * STOP_W + STOP_W / 2;
+    const dotY = waveY(dotX);
+    const dot = dots[i];
+    dot.style.left = dotX + 'px';
+    dot.style.top = dotY + 'px';
+    const size = active ? 16 : 10;
+    dot.style.width = size + 'px';
+    dot.style.height = size + 'px';
+    dot.style.background = active ? '#e9342f' : '#9c968e';
+    dot.style.opacity = active ? 1 : .4;
+    dot.style.transform = `translate(-50%,-50%) scale(${active ? 1.3 : 1})`;
+    stopEls[i].style.opacity = active ? 1 : .4;
+  });
+}
+renderTimeline();
+
+const tlTrack = document.getElementById('tlTrack');
+tlTrack.addEventListener('scroll', () => {
+  const center = tlTrack.scrollLeft + tlTrack.clientWidth / 2;
+  let nearest = 0, minDist = Infinity;
+  stopEls.forEach((el, i) => {
+    const c = el.offsetLeft + el.offsetWidth / 2;
+    const dist = Math.abs(c - center);
+    if (dist < minDist) { minDist = dist; nearest = i; }
+  });
+  if (nearest !== activeIndex) { activeIndex = nearest; renderTimeline(); }
+});
+
+// ── Cassetto mobile a 3 schede ──────────────────────────────────────
+const drawer = document.getElementById('drawer');
+const drawerBackdrop = document.getElementById('drawerBackdrop');
+const drawerTitle = document.getElementById('drawerTitle');
+const panels = {
+  calendario: document.getElementById('drawerCalendario'),
+  film: document.getElementById('drawerFilm'),
+  luogo: document.getElementById('drawerLuogo')
+};
+const titles = { calendario: 'Calendario', film: 'Film in programma', luogo: 'I luoghi che visitiamo' };
+const tabBtns = Array.from(document.querySelectorAll('.tab-btn'));
+
+function openDrawer(tab){
+  drawer.classList.add('open');
+  drawerBackdrop.classList.add('open');
+  drawerTitle.textContent = titles[tab];
+  Object.keys(panels).forEach(k => panels[k].style.display = k === tab ? '' : 'none');
+  tabBtns.forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+}
+function closeDrawer(){
+  drawer.classList.remove('open');
+  drawerBackdrop.classList.remove('open');
+}
+tabBtns.forEach(b => b.addEventListener('click', () => openDrawer(b.dataset.tab)));
+drawerBackdrop.addEventListener('click', closeDrawer);
+document.getElementById('drawerClose').addEventListener('click', closeDrawer);
+
+// ── Newsletter (placeholder: nessun backend ancora collegato) ───────
+document.getElementById('newsletterForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  e.target.querySelector('button').textContent = 'Iscritto ✓';
+});
+</script>
+</body>
+</html>
