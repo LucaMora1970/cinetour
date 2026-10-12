@@ -558,7 +558,7 @@ function todayRowHtml(o){
   </a>`;
 }
 
-const serateRecap = [
+let serateRecap = [
   { titolo:"Mamma Mia!", luogo:"Piazza Grande, Bellinzona", data:"3 luglio", img:"img/sample-cinema-paradiso.jpg" },
   { titolo:"Amélie", luogo:"Parco Ciani, Lugano", data:"8 luglio", img:"img/hero-bg.jpg" },
   { titolo:"Ratatouille", luogo:"Lido, Locarno", data:"15 luglio", img:"img/sample-up.jpg" },
@@ -709,30 +709,44 @@ function startHeroRotation(imgs){
 }
 
 async function loadCinetourHome(){
+  let home;
   try{
     const snap = await getDoc(doc(db,'settings','cinetourHome'));
     if(!snap.exists()){ startHeroRotation([]); return; }
-    const home = snap.data();
-    applyHomeVisibility(home);
+    home = snap.data();
+  }catch(err){ console.error('Errore caricamento homepage Cinetour', err); startHeroRotation([]); return; }
+  // Ogni sezione isolata nel proprio try/catch: un errore in una (es.
+  // sponsor) non deve poter "resettare" le altre già aggiornate — è successo
+  // per davvero con l'header, un bug in una sezione successiva arrivava
+  // fino al catch generale che rimetteva l'immagine di scorta sopra quella
+  // reale già impostata correttamente un istante prima
+  try{ applyHomeVisibility(home); }catch(err){ console.error('Errore visibilità sezioni Cinetour', err); }
+  try{
     const configuredHero = Array.isArray(home.heroImgs) && home.heroImgs.some(Boolean)
       ? home.heroImgs.filter(Boolean)
       : (home.heroImg ? [home.heroImg] : []);
     startHeroRotation(configuredHero);
+  }catch(err){ console.error('Errore header Cinetour', err); startHeroRotation([]); }
+  try{
     if(Array.isArray(home.serateMagiche)&&home.serateMagiche.some(s=>s&&s.img)){
       serateRecap = home.serateMagiche
         .filter(s=>s&&s.img)
         .map(s=>({titolo:s.titolo||'',luogo:s.luogo||'',data:s.data||'',img:s.img}));
       renderRecapGrid();
     }
+  }catch(err){ console.error('Errore serate magiche Cinetour', err); }
+  try{
     if(Array.isArray(home.sponsor)&&home.sponsor.some(s=>s&&(s.nome||s.logo))){
       sponsor = home.sponsor.filter(s=>s&&(s.nome||s.logo));
       renderSponsorGrid();
     }
+  }catch(err){ console.error('Errore sponsor Cinetour', err); }
+  try{
     if(Array.isArray(home.social)&&home.social.some(s=>s&&(s.piattaforma||s.icona)&&s.link)){
       social = home.social.filter(s=>s&&(s.piattaforma||s.icona)&&s.link);
       renderSocialRow();
     }
-  }catch(err){ console.error('Errore caricamento homepage Cinetour', err); startHeroRotation([]); }
+  }catch(err){ console.error('Errore social Cinetour', err); }
 }
 loadCinetourHome();
 
