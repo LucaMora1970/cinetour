@@ -38,7 +38,7 @@
     img { max-width: 100%; }
 
     /* ── Tipografia condivisa ───────────────────────────────────────── */
-    .eyebrow { display:flex; align-items:center; gap:12px; margin-bottom:24px; font-size:clamp(.67rem,1.34vw,1.3rem); letter-spacing:.22em; text-transform:uppercase; color: var(--red); }
+    .eyebrow { display:flex; align-items:center; gap:12px; margin-bottom:24px; font-size:clamp(.67rem,1.34vw,1.3rem); letter-spacing:.22em; text-transform:uppercase; color: var(--red); white-space:nowrap }
     .eyebrow > span:first-child { width:46px; height:2px; display:inline-block; flex-shrink:0; background: var(--red); }
     .mega { margin:0; font-weight:700; font-size:clamp(3.6rem,11.2vw,10.8rem); line-height:.8; letter-spacing:-.048em; text-transform:uppercase; text-wrap:balance; overflow-wrap:normal }
     .sub { margin-top:34px; max-width:650px; font-size:clamp(1rem,1.6vw,1.55rem); line-height:1.58; color: var(--ink) }
@@ -146,13 +146,17 @@
          schermi stretti questo la farebbe diventare troppo bassa — qui si
          torna a un'altezza fissa con la foto ritagliata, come prima */
       .hero { min-height:520px }
-      .hero-bg { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:left center }
+      .hero-bg { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:right center }
       /* "CineTour.ch" è un'unica parola senza spazi (nessun punto di a
          capo possibile): sotto il minimo del clamp normale poteva
          sconfinare oltre il padding destro — qui il minimo scende così
          il testo sta sempre nella larghezza utile, padding uguali */
       .hero-brand { width:100%; flex-basis:100% }
       .hero-brand .mega { font-size:clamp(2.3rem,11.2vw,10.8rem) }
+      /* Su mobile il sottotitolo "Il cinema all'aperto itinerante" può
+         tornare ad andare a capo se non entra: il nowrap è una richiesta
+         solo per la versione desktop */
+      .eyebrow { white-space:normal }
     }
 
     /* ── Timeline ondulata ──────────────────────────────────────────── */
@@ -197,13 +201,11 @@
     .event-foot .maps:hover { color: var(--ink) }
 
     /* ── Card foto (ricordi / luoghi) ───────────────────────────────── */
-    .recap-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:20px }
-    .recap-card { border-radius:10px; overflow:hidden; position:relative; aspect-ratio:3/4 }
-    .recap-card img { width:100%; height:100%; object-fit:cover; display:block }
-    .recap-scrim { position:absolute; inset:0; background:linear-gradient(180deg,transparent 50%,rgba(11,11,11,.82) 100%) }
-    .recap-caption { position:absolute; left:0; right:0; bottom:0; padding:18px; color: var(--white) }
-    .recap-caption .t { font-size:.95rem; font-weight:800; text-transform:uppercase }
-    .recap-caption .m { font-size:.76rem; color: var(--panna); opacity:.85; margin-top:2px }
+    .recap-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:20px }
+    .recap-card { background: var(--white); border:1px solid rgba(11,11,11,.12); border-radius:10px; overflow:hidden }
+    .recap-card img { width:100%; aspect-ratio:4/3; object-fit:cover; display:block }
+    .recap-card .body { padding:16px }
+    .recap-card .n { font-size:.95rem; font-weight:800; color: var(--ink) }
 
     .luogo-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:20px }
     .luogo-card { background: var(--white); border:1px solid rgba(11,11,11,.12); border-radius:10px; overflow:hidden }
@@ -624,8 +626,7 @@ function renderRecapGrid(){
   document.getElementById('recapGrid').innerHTML = serateRecap.map(s => `
     <div class="recap-card">
       <img src="${esc(s.img)}" alt="" loading="lazy">
-      <div class="recap-scrim"></div>
-      <div class="recap-caption"><div class="t">${esc(s.titolo)}</div><div class="m">${esc(s.luogo)} · ${esc(s.data)}</div></div>
+      <div class="body"><div class="n">${esc(s.luogo)}</div></div>
     </div>
   `).join('');
 }
@@ -731,7 +732,7 @@ async function loadCinetourHome(){
     if(Array.isArray(home.serateMagiche)&&home.serateMagiche.some(s=>s&&s.img)){
       serateRecap = home.serateMagiche
         .filter(s=>s&&s.img)
-        .map(s=>({titolo:s.titolo||'',luogo:s.luogo||'',data:s.data||'',img:s.img}));
+        .map(s=>({luogo:s.luogo||'',img:s.img}));
       renderRecapGrid();
     }
   }catch(err){ console.error('Errore serate magiche Cinetour', err); }
