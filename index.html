@@ -13,9 +13,10 @@
   <link rel="icon" type="image/png" sizes="16x16" href="img/favicon-16x16.png">
   <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
 
-  <!-- Foto di sfondo della hero: background-image via CSS verrebbe scoperta
-       solo dopo il parsing del CSS — qui è un <img>, quindi lo scanner la
-       trova subito, ma il preload la fa comunque partire prima -->
+  <!-- Immagine di scorta per l'header (nessuna configurata dall'admin, o
+       errore di rete): precaricata così è pronta non appena JS la richiede.
+       L'<img> .hero-bg in pagina parte senza src apposta, per evitare un
+       lampo tra questa e l'immagine reale — vedi startHeroRotation() -->
   <link rel="preload" as="image" href="img/hero-bg.jpg">
 
   <style>
@@ -65,7 +66,11 @@
     /* L'immagine detta l'altezza della sezione (nessun ritaglio, nessuna
        altezza fissa indovinata): a piena larghezza, alta quanto serve per
        mantenere il suo rapporto proporzioni reale */
-    .hero-bg { display:block; width:100%; height:auto; opacity:.5 }
+    /* Parte invisibile ed entra in dissolvenza solo quando l'immagine
+       giusta è pronta — evita il lampo dell'immagine di scorta sostituita
+       un attimo dopo da quella reale caricata dall'admin */
+    .hero-bg { display:block; width:100%; height:auto; opacity:0; transition:opacity .6s ease }
+    .hero-bg.loaded { opacity:.5 }
     .hero-scrim { position:absolute; inset:0; z-index:1; background:linear-gradient(180deg,rgba(11,11,11,.97) 0%,rgba(11,11,11,.72) 40%,rgba(11,11,11,.12) 78%,var(--panna) 100%) }
     /* Stessa disposizione di cinemamultisalateatro.ch: titolo e colonna
        "oggi" ancorati insieme al fondo della hero, non il titolo in alto
@@ -266,7 +271,7 @@
   </header>
 
   <section class="hero">
-    <img class="hero-bg" src="img/hero-bg.jpg" alt="">
+    <img class="hero-bg" alt="">
     <div class="hero-scrim"></div>
     <div class="hero-inner">
       <div class="hero-brand">
@@ -671,15 +676,48 @@ window.addEventListener('load', updateBodyGradient);
 window.addEventListener('resize', updateBodyGradient);
 applyHomeVisibility({});
 
+// Immagini header: fino a 4, in dissolvenza se più di una. Non si imposta
+// mai un src "di scorta" prima — l'<img> parte invisibile (vedi CSS
+// .hero-bg) e va diritta all'immagine giusta appena nota, niente lampo
+let heroImgs = ['img/hero-bg.jpg'];
+let heroIdx = 0;
+let heroTimer = null;
+function setHeroSrc(url){
+  const img = document.querySelector('.hero-bg');
+  if(!img || !url) return;
+  img.classList.remove('loaded');
+  const reveal = () => { img.classList.add('loaded'); };
+  img.addEventListener('load', reveal, {once:true});
+  img.src = url;
+}
+function startHeroRotation(imgs){
+  heroImgs = (imgs||[]).filter(Boolean);
+  if(!heroImgs.length) heroImgs = ['img/hero-bg.jpg'];
+  heroIdx = 0;
+  setHeroSrc(heroImgs[0]);
+  if(heroTimer) clearInterval(heroTimer);
+  if(heroImgs.length > 1){
+    heroTimer = setInterval(() => {
+      const img = document.querySelector('.hero-bg');
+      if(img) img.classList.remove('loaded');
+      setTimeout(() => {
+        heroIdx = (heroIdx + 1) % heroImgs.length;
+        setHeroSrc(heroImgs[heroIdx]);
+      }, 650);
+    }, 6000);
+  }
+}
+
 async function loadCinetourHome(){
   try{
     const snap = await getDoc(doc(db,'settings','cinetourHome'));
-    if(!snap.exists())return;
+    if(!snap.exists()){ startHeroRotation([]); return; }
     const home = snap.data();
     applyHomeVisibility(home);
-    if(home.heroImg){
-      document.querySelector('.hero-bg').src = home.heroImg;
-    }
+    const configuredHero = Array.isArray(home.heroImgs) && home.heroImgs.some(Boolean)
+      ? home.heroImgs.filter(Boolean)
+      : (home.heroImg ? [home.heroImg] : []);
+    startHeroRotation(configuredHero);
     if(Array.isArray(home.serateMagiche)&&home.serateMagiche.some(s=>s&&s.img)){
       serateRecap = home.serateMagiche
         .filter(s=>s&&s.img)
@@ -694,7 +732,7 @@ async function loadCinetourHome(){
       social = home.social.filter(s=>s&&(s.piattaforma||s.icona)&&s.link);
       renderSocialRow();
     }
-  }catch(err){ console.error('Errore caricamento homepage Cinetour', err); }
+  }catch(err){ console.error('Errore caricamento homepage Cinetour', err); startHeroRotation([]); }
 }
 loadCinetourHome();
 
