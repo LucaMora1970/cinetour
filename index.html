@@ -69,9 +69,11 @@
     /* Parte invisibile ed entra in dissolvenza solo quando l'immagine
        giusta è pronta — evita il lampo dell'immagine di scorta sostituita
        un attimo dopo da quella reale caricata dall'admin */
-    .hero-bg { display:block; width:100%; height:auto; opacity:0; transition:opacity .6s ease }
+    /* Dissolvenza della foto verso il colore di sfondo alla base della hero,
+       invece di un taglio netto */
+    .hero-bg { display:block; width:100%; height:auto; opacity:0; transition:opacity .6s ease; position:relative; z-index:2; -webkit-mask-image:linear-gradient(to bottom,#000 80%,transparent 100%); mask-image:linear-gradient(to bottom,#000 80%,transparent 100%) }
     .hero-bg.loaded { opacity:.5 }
-    .hero-scrim { position:absolute; inset:0; z-index:1; background:linear-gradient(180deg,rgba(11,11,11,.97) 0%,rgba(11,11,11,.72) 40%,rgba(11,11,11,.12) 78%,var(--panna) 100%) }
+    .hero-scrim { position:absolute; inset:0; z-index:1; background:linear-gradient(180deg,rgba(11,11,11,.97) 0%,rgba(11,11,11,.97) 15%,rgba(11,11,11,.75) 50%,rgba(11,11,11,.15) 80%,var(--panna) 100%) }
     /* Stessa disposizione di cinemamultisalateatro.ch: titolo e colonna
        "oggi" ancorati insieme al fondo della hero, non il titolo in alto
        e la card in basso separatamente */
@@ -600,7 +602,7 @@ function buildFilmProssimi(filmiCalendario, allFilms){
 }
 
 let tappeData = [
-  { data:"Partenza", luogo:"Cinema Multisala Teatro", comune:"Mendrisio" },
+  { data:"Partenza", luogo:"Cinema Multisala", comune:"Mendrisio" },
   { data:"12 lug", luogo:"Parco Ciani", comune:"Lugano" },
   { data:"18 lug", luogo:"Piazza del Mercato", comune:"Mendrisio" },
   { data:"23 lug", luogo:"Giardino Pubblico", comune:"Bellinzona" },
