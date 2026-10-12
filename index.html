@@ -166,7 +166,10 @@
        larghezza), ma il suo contenuto va comunque allineato a sinistra
        con l'intestazione qui sopra: stesso max-width/centratura di
        .section, altrimenti su schermi larghi parte più a sinistra */
-    .tl-track { max-width:1200px; margin:30px auto 0; overflow-x:auto; padding:10px max(5vw,24px) 30px; scroll-snap-type:x proximity; scrollbar-width:thin }
+    /* niente scroll-snap: con lo scroll automatico che segue il furgoncino
+       a ogni frame, uno snap-point lungo il percorso lo farebbe "scattare"
+       a blocchi sulla tappa più vicina invece di scorrere con continuità */
+    .tl-track { max-width:1200px; margin:30px auto 0; overflow-x:auto; padding:10px max(5vw,24px) 30px; scrollbar-width:thin }
     .tl-track::-webkit-scrollbar { height:6px }
     .tl-track::-webkit-scrollbar-thumb { background:rgba(11,11,11,.2); border-radius:3px }
     /* Barra di scorrimento sempre visibile sotto la timeline — la nativa
@@ -997,6 +1000,8 @@ function quadPoint(t, x1, y1, mx, my, x2, y2) {
 }
 
 let _tlScrollHandler = null;
+let _tlFollowGen = 0;
+let _tlLastInteraction = 0;
 function buildTimeline(data){
   const tlWaveZone = document.getElementById('tlWaveZone');
   const tlSvg = document.getElementById('tlSvg');
@@ -1070,7 +1075,7 @@ function buildTimeline(data){
   }
   document.getElementById('tlTrain').setAttribute('opacity', '0.55');
 
-  let activeIndex = Math.min(2, data.length - 1);
+  let activeIndex = 0;
   // Durata dell'animazione del furgoncino: deve combaciare con quella del
   // <mpath> in #tlTrain, altrimenti il pallino si "accende" prima o dopo
   // il suo passaggio reale
@@ -1130,17 +1135,56 @@ function buildTimeline(data){
   updateScrollbar();
 
   _tlScrollHandler = () => {
-    const center = tlTrack.scrollLeft + tlTrack.clientWidth / 2;
-    let nearest = 0, minDist = Infinity;
-    stopEls.forEach((el, i) => {
-      const c = el.offsetLeft + el.offsetWidth / 2;
-      const dist = Math.abs(c - center);
-      if (dist < minDist) { minDist = dist; nearest = i; }
-    });
+    // Proporzionale allo scroll (0 a inizio corsa, data.length-1 a fine
+    // corsa) invece che "tappa più vicina al centro": con il centro del
+    // viewport, il padding della pista impediva di arrivare mai davvero
+    // all'ultima tappa scrollando fino in fondo — restava sempre indietro
+    const maxScroll = tlTrack.scrollWidth - tlTrack.clientWidth;
+    const frac = maxScroll > 0 ? tlTrack.scrollLeft / maxScroll : 0;
+    const nearest = Math.round(frac * (data.length - 1));
     if (nearest !== activeIndex) { activeIndex = nearest; renderTimelineDots(); }
     updateScrollbar();
   };
   tlTrack.addEventListener('scroll', _tlScrollHandler);
+
+  // Segue il furgoncino quando esce dall'area visibile: se ci sono ancora
+  // tappe più avanti, lo scroll avanza da solo per tenerlo in vista invece
+  // di lasciarlo sparire fuori dalla finestra visibile. Mai all'indietro
+  // (se l'utente ha scorso apposta più avanti del furgoncino, non lo
+  // riporta indietro) e si ferma per un attimo appena l'utente interviene
+  // a mano, altrimenti i due scroll si "litigherebbero" il controllo
+  if(!tlTrack._tlListenersAdded){
+    ['wheel','touchstart','pointerdown'].forEach(function(ev){
+      tlTrack.addEventListener(ev,function(){_tlLastInteraction=performance.now();},{passive:true});
+    });
+    tlTrack._tlListenersAdded=true;
+  }
+  _tlFollowGen++;
+  const tlFollowGenMine = _tlFollowGen;
+  const tlFollowT0 = performance.now();
+  let tlFollowLastElapsed = 0;
+  (function tlFollowLoop(){
+    if(tlFollowGenMine!==_tlFollowGen)return;
+    const maxScroll = tlTrack.scrollWidth - tlTrack.clientWidth;
+    if(maxScroll>0 && performance.now()-_tlLastInteraction>1500){
+      const elapsedS = ((performance.now()-tlFollowT0)/1000) % TRAIN_DUR;
+      // Il furgoncino è tornato all'inizio del giro (giro nuovo): si
+      // riparte anche con lo scroll, altrimenti resterebbe fermo alla
+      // fine per quasi tutto il giro successivo, invece di scorrere in
+      // continuità — sembrerebbe "a blocchi" più che un avanzamento lento
+      if(elapsedS < tlFollowLastElapsed) tlTrack.scrollLeft = 0;
+      tlFollowLastElapsed = elapsedS;
+      // Lo scroll insegue il furgoncino a passo costante tenendolo sempre
+      // alla stessa distanza dal bordo sinistro, non solo quando sta per
+      // uscire dall'inquadratura: così avanza con continuità invece di
+      // restare fermo e poi recuperare tutto in un balzo
+      const vanX = (elapsedS/TRAIN_DUR) * tlWidth;
+      const lookahead = tlTrack.clientWidth * 0.32;
+      const target = Math.min(Math.max(vanX - lookahead, 0), maxScroll);
+      if(target > tlTrack.scrollLeft) tlTrack.scrollLeft = target;
+    }
+    requestAnimationFrame(tlFollowLoop);
+  })();
 }
 buildTimeline(tappeData);
 
