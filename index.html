@@ -169,8 +169,23 @@
     .tl-track { max-width:1200px; margin:30px auto 0; overflow-x:auto; padding:10px max(5vw,24px) 30px; scroll-snap-type:x proximity; scrollbar-width:thin }
     .tl-track::-webkit-scrollbar { height:6px }
     .tl-track::-webkit-scrollbar-thumb { background:rgba(11,11,11,.2); border-radius:3px }
+    /* Barra di scorrimento sempre visibile sotto la timeline — la nativa
+       (sopra) su Safari/trackpad resta nascosta finché non si scorre
+       attivamente, qui si vede subito che si può scorrere dalla prima
+       all'ultima tappa */
+    .tl-scrollbar-track { max-width:1200px; margin:0 auto 40px; padding:0 max(5vw,24px); height:4px; background:rgba(11,11,11,.1); border-radius:2px; overflow:hidden }
+    .tl-scrollbar-thumb { position:relative; height:100%; width:30%; background:var(--red); border-radius:2px }
     .tl-wave-zone { position:relative; height:140px }
-    .tl-dot { position:absolute; transform:translate(-50%,-50%); border-radius:50%; transition:opacity .25s,transform .25s }
+    .tl-dot { position:absolute; transform:translate(-50%,-50%) scale(var(--dot-scale,1)); background:var(--dot-color,#9c968e); border-radius:50%; transition:opacity .25s }
+    /* Il pallino si "accende" (ingrandisce e poi torna normale) proprio nel
+       momento in cui il furgoncino lo sta per raggiungere — var(--dot-scale)
+       resta quella impostata da JS (stato attivo/inattivo), il picco del
+       pallone si somma sopra, non la sostituisce */
+    @keyframes tl-dot-pulse {
+      0% { transform:translate(-50%,-50%) scale(calc(var(--dot-scale,1) * 1.9)); background:#e9342f; }
+      14% { transform:translate(-50%,-50%) scale(var(--dot-scale,1)); background:var(--dot-color,#9c968e); }
+      100% { transform:translate(-50%,-50%) scale(var(--dot-scale,1)); background:var(--dot-color,#9c968e); }
+    }
     .tl-labels { display:flex }
     .tl-stop { scroll-snap-align:center; flex-shrink:0; width:220px; text-align:center; transition:opacity .25s }
     .tl-stop .d { font-size:.78rem; font-weight:700; color: var(--red) }
@@ -329,22 +344,112 @@
           <g id="tlContours"></g>
           <path id="tlRailPath" fill="none" stroke="none"></path>
           <path id="tlPath" fill="none" stroke="#e9342f" stroke-width="3" stroke-linecap="round" class="wave-path"></path>
-          <g id="tlTrain">
-            <g transform="translate(-13,-8)">
-              <rect x="0" y="4" width="22" height="9" rx="2" fill="#0b0b0b"></rect>
-              <rect x="2" y="0" width="8" height="5" rx="1" fill="#0b0b0b"></rect>
-              <circle cx="5" cy="14" r="2.4" fill="#0b0b0b"></circle>
-              <circle cx="17" cy="14" r="2.4" fill="#0b0b0b"></circle>
-              <circle cx="20" cy="8" r="1.4" fill="#e9342f"></circle>
+          <g id="tlTrain" opacity="0.65">
+            <!-- Furgoncino con rimorchio-schermo, nella direzione di marcia
+                 (il rimorchio resta trainato dietro, a sinistra) -->
+            <g transform="translate(20.00,-6.42) scale(-0.024375,0.024375)">
+              <g transform="translate(-25.090612,559.923728) scale(0.1,-0.1)" fill="#0b0b0b" stroke="none">
+              <path d="M3555 5593 c-11 -3 -32 -17 -47 -31 l-28 -26 0 -309 c0 -192 4 -316
+10 -328 27 -49 27 -49 667 -49 l598 0 0 -98 -1 -97 -586 -6 c-323 -4 -613 -10
+-644 -14 -70 -8 -205 -52 -293 -94 l-64 -30 29 -11 c94 -34 182 -73 203 -89
+l24 -18 -80 -89 c-84 -94 -471 -472 -913 -892 l-264 -252 -81 0 c-132 0 -394
+20 -480 37 -176 34 -192 31 -587 -103 -418 -143 -519 -206 -557 -350 -6 -23
+-20 -53 -32 -68 -17 -21 -22 -49 -29 -149 -12 -159 -12 -450 0 -601 8 -103 12
+-120 30 -133 28 -19 10 -43 -32 -43 -117 0 -154 -100 -146 -400 4 -175 14
+-207 78 -245 32 -18 55 -20 258 -23 125 -2 258 1 305 7 128 17 138 37 156 317
+7 104 16 166 29 201 51 135 251 358 400 447 155 92 377 147 531 131 245 -25
+436 -119 611 -301 200 -208 330 -520 330 -790 l0 -74 2162 2 2162 3 13 124 c7
+69 17 150 24 180 90 441 405 770 803 840 87 16 255 13 344 -5 323 -66 616
+-329 726 -652 35 -102 45 -159 60 -341 8 -90 19 -168 24 -173 22 -22 186 -27
+835 -27 l667 -1 0 145 0 145 319 0 c282 0 320 -2 325 -16 3 -9 6 -61 6 -117 0
+-56 4 -107 8 -114 6 -9 201 -9 827 -3 451 5 886 9 968 10 l147 0 0 24 c0 44
+48 179 87 244 74 126 204 229 343 273 93 30 254 37 354 14 241 -53 435 -247
+478 -475 6 -36 15 -69 20 -74 6 -8 1687 10 1695 18 1 1 -11 753 -26 1671 -17
+1031 -25 1675 -19 1682 5 6 92 78 194 160 163 131 181 148 156 151 -28 3
+-4356 -83 -4681 -93 l-184 -5 -47 -35 c-62 -46 -178 -168 -227 -241 -92 -136
+-200 -404 -210 -523 -3 -31 18 -553 47 -1160 28 -608 50 -1123 48 -1145 l-3
+-41 -245 -11 c-135 -7 -278 -12 -317 -13 l-73 -1 0 29 c0 32 -16 49 -57 60
+-40 11 -59 52 -39 88 37 68 39 81 44 290 6 264 0 315 -38 355 -35 36 -37 51
+-45 308 -12 415 -70 884 -160 1305 -56 260 -145 534 -204 627 -38 60 -107 115
+-161 128 -51 12 -643 29 -1032 30 l-258 0 0 95 0 95 595 0 595 0 32 29 33 29
+3 304 c2 286 1 305 -17 335 -13 21 -33 35 -58 42 -38 11 -6394 14 -6438 4z
+m1170 -161 c-15 -14 -496 -357 -500 -357 -5 0 -465 358 -465 362 0 2 219 3
+487 3 268 0 483 -4 478 -8z m1194 4 c-34 -30 -533 -386 -539 -384 -10 3 -410
+379 -410 384 0 2 215 4 477 4 262 0 474 -2 472 -4z m1121 -10 c-8 -7 -126 -99
+-262 -205 l-247 -192 -240 202 c-133 111 -241 203 -241 205 0 2 226 4 502 4
+423 0 500 -2 488 -14z m1075 5 c-17 -15 -525 -351 -531 -351 -6 0 -180 180
+-298 308 l-49 52 444 0 c254 0 439 -4 434 -9z m1065 -5 c-30 -27 -431 -337
+-443 -342 -10 -4 -357 273 -422 337 -19 19 -14 19 430 19 379 0 447 -2 435
+-14z m740 -196 c0 -115 -2 -210 -5 -210 -4 0 -525 390 -549 412 -6 4 117 8
+272 8 l282 0 0 -210z m-5760 -226 c0 -2 -119 -4 -265 -4 l-265 0 0 210 0 209
+265 -205 c146 -113 265 -207 265 -210z m920 201 l212 -200 -251 -3 c-138 -1
+-365 -1 -504 0 l-252 3 280 202 c154 111 285 201 291 200 7 -1 107 -92 224
+-202z m2260 -7 l183 -193 -216 -3 c-118 -1 -315 -1 -437 0 l-222 3 243 192
+c134 105 249 192 255 192 6 1 94 -86 194 -191z m1106 -5 l227 -188 -256 -3
+c-141 -1 -372 -1 -515 0 l-260 3 277 187 c152 103 282 187 288 188 7 0 115
+-84 239 -187z m1086 0 l248 -188 -244 -3 c-135 -1 -358 -1 -496 0 l-252 3 239
+187 c131 103 242 187 248 187 5 1 121 -83 257 -186z m-3303 -28 l191 -160
+-235 -3 c-129 -1 -341 -1 -470 0 l-236 3 252 182 251 182 28 -22 c16 -12 114
+-94 219 -182z m2501 -410 l0 -95 -1930 -2 c-1061 -1 -1938 -2 -1947 -2 -16 -1
+-18 11 -21 97 l-3 97 1951 0 1950 0 0 -95z m7172 -337 c32 -19 52 -41 67 -72
+21 -43 22 -68 52 -1471 17 -785 28 -1443 24 -1462 -7 -41 -59 -101 -102 -119
+-26 -11 -127 -14 -485 -14 -509 0 -507 0 -563 75 -26 33 -29 47 -36 148 -5 62
+-20 718 -35 1458 -30 1457 -31 1379 26 1434 56 54 66 55 555 52 l450 -2 47
+-27z m-6168 -56 c43 -6 90 -19 103 -28 73 -47 167 -406 223 -849 12 -93 20
+-192 17 -218 -6 -63 -38 -97 -104 -109 -57 -11 -2023 -26 -3625 -27 l-1138 -1
+-30 42 c-54 74 -55 84 -55 583 0 253 4 477 8 497 10 48 56 94 104 103 89 18
+588 22 2448 20 1351 -2 1995 -6 2049 -13z m-5139 -194 c9 -112 2 -889 -8 -909
+-5 -10 -23 -20 -40 -24 -18 -3 -336 -9 -707 -12 l-675 -5 3 115 c3 126 -6 181
+-38 215 -18 20 -31 22 -110 22 -82 0 -90 2 -90 19 0 29 66 106 191 224 288
+268 463 387 624 422 43 10 168 14 452 14 l391 1 7 -82z"></path>
+              <path d="M14928 4339 c-10 -5 -22 -18 -28 -29 -7 -13 -1 -462 20 -1447 29
+-1335 32 -1430 49 -1453 10 -13 29 -28 42 -31 13 -4 215 -7 449 -8 455 -1 463
+0 487 49 9 19 5 350 -18 1435 -16 776 -32 1420 -34 1432 -3 12 -15 32 -27 43
+-21 19 -33 20 -472 20 -286 0 -457 -4 -468 -11z"></path>
+              <path d="M5402 4310 c-102 -4 -188 -12 -193 -17 -6 -6 -15 -28 -21 -49 -13
+-54 -21 -663 -11 -863 8 -143 11 -165 28 -177 22 -17 678 -18 3223 -7 1292 5
+1592 9 1596 19 6 17 -20 306 -40 444 -25 172 -70 375 -115 515 l-41 132 -712
+6 c-887 9 -3468 6 -3714 -3z"></path>
+              <path d="M2960 4318 c-791 -587 -1198 -899 -1295 -992 l-40 -39 65 -19 c173
+-49 373 -62 440 -28 76 39 277 218 800 716 326 309 413 399 408 421 -5 28
+-103 73 -157 72 -43 -1 -57 -9 -221 -131z"></path>
+              <path d="M8166 1964 c-286 -52 -529 -261 -619 -531 -98 -298 -22 -603 208
+-828 119 -116 234 -179 388 -212 91 -19 305 -13 392 11 384 106 645 480 598
+855 -60 475 -493 791 -967 705z m338 -303 c241 -85 374 -329 325 -597 -18 -97
+-60 -173 -137 -246 -103 -97 -190 -133 -352 -144 -154 -11 -250 20 -351 113
+-101 94 -168 213 -191 343 -7 42 -6 73 6 128 45 218 182 363 396 418 76 19
+227 12 304 -15z"></path>
+              <path d="M8213 1482 c-143 -51 -216 -155 -217 -307 -1 -63 4 -91 23 -132 89
+-200 378 -248 537 -89 115 116 126 289 25 422 -77 103 -244 150 -368 106z"></path>
+              <path d="M1782 1919 c-110 -14 -256 -97 -375 -213 -71 -69 -111 -123 -154
+-211 -113 -226 -103 -547 24 -764 114 -195 362 -362 585 -393 201 -29 469 48
+644 184 115 90 229 273 270 433 27 104 25 286 -5 390 -65 232 -215 416 -426
+520 -75 38 -105 47 -180 55 -104 11 -292 11 -383 -1z m368 -289 c224 -65 358
+-274 348 -541 -5 -132 -38 -198 -149 -303 -93 -88 -187 -139 -299 -162 -67
+-14 -81 -14 -147 1 -186 42 -331 158 -403 325 -29 66 -39 215 -20 303 61 294
+365 465 670 377z"></path>
+              <path d="M1915 1456 c-155 -39 -244 -147 -253 -302 -6 -109 15 -172 77 -234
+97 -97 215 -126 346 -87 86 27 133 62 171 131 63 115 67 253 9 352 -65 111
+-220 174 -350 140z"></path>
+              <path d="M13893 1470 c-111 -22 -244 -99 -318 -183 -84 -96 -145 -254 -145
+-377 0 -253 185 -486 435 -550 138 -35 249 -23 385 42 236 113 365 382 305
+636 -69 293 -370 489 -662 432z m179 -221 c109 -23 199 -95 246 -197 22 -48
+27 -71 27 -142 0 -71 -5 -94 -27 -143 -71 -151 -240 -233 -399 -193 -108 28
+-182 90 -232 194 -25 54 -30 76 -30 142 0 66 5 88 30 142 47 99 123 165 223
+192 68 18 95 19 162 5z"></path>
+              <path d="M13925 1106 c-66 -29 -124 -114 -125 -181 -1 -168 189 -273 323 -179
+166 117 87 375 -115 374 -29 -1 -66 -7 -83 -14z"></path>
+              </g>
             </g>
             <animateMotion dur="38s" repeatCount="indefinite" rotate="auto">
-              <mpath href="#tlRailPath"></mpath>
+              <mpath href="#tlPath"></mpath>
             </animateMotion>
           </g>
         </svg>
       </div>
       <div class="tl-labels" id="tlLabels"></div>
     </div>
+    <div class="tl-scrollbar-track"><div class="tl-scrollbar-thumb" id="tlScrollThumb"></div></div>
   </div>
 
   <div class="section sec-calendario" id="calendario" style="padding-top:130px;color:var(--ink);display:none">
@@ -927,9 +1032,17 @@ function buildTimeline(data){
   document.getElementById('tlTrain').setAttribute('opacity', '0.55');
 
   let activeIndex = Math.min(2, data.length - 1);
-  const dots = data.map(() => {
+  // Durata dell'animazione del furgoncino: deve combaciare con quella del
+  // <mpath> in #tlTrain, altrimenti il pallino si "accende" prima o dopo
+  // il suo passaggio reale
+  const TRAIN_DUR = 38;
+  const dots = data.map((t, i) => {
     const dot = document.createElement('div');
     dot.className = 'tl-dot';
+    const dotX = i * STOP_W + STOP_W / 2;
+    const delay = (dotX / tlWidth) * TRAIN_DUR;
+    dot.style.animation = `tl-dot-pulse ${TRAIN_DUR}s ease-in-out infinite`;
+    dot.style.animationDelay = delay + 's';
     tlWaveZone.appendChild(dot);
     return dot;
   });
@@ -953,13 +1066,29 @@ function buildTimeline(data){
       const size = active ? 16 : 10;
       dot.style.width = size + 'px';
       dot.style.height = size + 'px';
-      dot.style.background = active ? '#e9342f' : '#9c968e';
+      dot.style.setProperty('--dot-color', active ? '#e9342f' : '#9c968e');
       dot.style.opacity = active ? 1 : .4;
-      dot.style.transform = `translate(-50%,-50%) scale(${active ? 1.3 : 1})`;
+      dot.style.setProperty('--dot-scale', active ? 1.3 : 1);
       stopEls[i].style.opacity = active ? 1 : .4;
     });
   }
   renderTimelineDots();
+
+  // Barra di scorrimento personalizzata sotto la timeline: la nativa (sulla
+  // traccia stessa) può restare invisibile su Safari/trackpad finché non si
+  // scorre attivamente — questa si vede subito, dà il segnale che si può
+  // scorrere e mostra quanto manca alla fine
+  const tlScrollThumb = document.getElementById('tlScrollThumb');
+  function updateScrollbar(){
+    if (!tlScrollThumb) return;
+    const visible = tlTrack.clientWidth, total = tlTrack.scrollWidth;
+    const widthPct = total > 0 ? Math.max(8, visible / total * 100) : 100;
+    const scrollable = total - visible;
+    const leftPct = scrollable > 0 ? (tlTrack.scrollLeft / scrollable) * (100 - widthPct) : 0;
+    tlScrollThumb.style.width = widthPct + '%';
+    tlScrollThumb.style.left = leftPct + '%';
+  }
+  updateScrollbar();
 
   _tlScrollHandler = () => {
     const center = tlTrack.scrollLeft + tlTrack.clientWidth / 2;
@@ -970,6 +1099,7 @@ function buildTimeline(data){
       if (dist < minDist) { minDist = dist; nearest = i; }
     });
     if (nearest !== activeIndex) { activeIndex = nearest; renderTimelineDots(); }
+    updateScrollbar();
   };
   tlTrack.addEventListener('scroll', _tlScrollHandler);
 }
