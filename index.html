@@ -86,7 +86,7 @@
     /* ── Card calendario (hero, desktop) ───────────────────────────── */
     /* Stessa fascia rossa in cima usata nel cassetto mobile, stesso
        principio (gradiente sullo sfondo, non un figlio sconfinante) */
-    .calendar-card { flex:1 1 320px; min-width:280px; max-width:400px; background: linear-gradient(to bottom, var(--red) 0, var(--red) 58px, var(--white) 58px); border-radius:12px; padding:22px; box-shadow:0 16px 40px rgba(11,11,11,.3); align-self:flex-end; transform:translateY(220px) }
+    .calendar-card { flex:1 1 320px; min-width:280px; max-width:400px; background: linear-gradient(to bottom, var(--red) 0, var(--red) 58px, var(--white) 58px); border-radius:12px; padding:22px; box-shadow:0 16px 40px rgba(11,11,11,.3); align-self:flex-end; transform:translateY(300px) }
     .calendar-card-title { font-size:.95rem; font-weight:800; text-transform:uppercase; margin-bottom:16px; color: var(--ink) }
     .today-row { display:flex; align-items:stretch; gap:12px; padding:12px 8px; border-radius:8px; border-bottom:1px solid rgba(11,11,11,.08); color: var(--ink) }
     .today-row:hover { background: var(--panna) }
@@ -108,7 +108,7 @@
        sconfinare l'header con margini negativi — con overflow-y:auto sul
        cassetto, un figlio tirato fuori coi margini negativi finiva tagliato
        dall'area di scroll e spariva del tutto */
-    .cal-drawer { position:fixed; left:0; right:0; bottom:0; z-index:61; background: linear-gradient(to bottom, var(--red) 0, var(--red) 70px, var(--white) 70px); border-radius:16px 16px 0 0; padding:22px max(5vw,24px) 28px; max-height:70vh; overflow-y:auto; transform:translateY(100%); transition:transform .3s cubic-bezier(.16,1,.3,1); box-shadow:0 -10px 30px rgba(11,11,11,.3) }
+    .cal-drawer { position:fixed; left:0; right:0; bottom:0; z-index:61; background: linear-gradient(to bottom, var(--red) 0, var(--red) 70px, var(--white) 70px); border-radius:16px 16px 0 0; padding:22px max(5vw,24px) 28px; max-height:70vh; overflow-y:auto; -webkit-overflow-scrolling:touch; transform:translateY(100%); transition:transform .3s cubic-bezier(.16,1,.3,1); box-shadow:0 -10px 30px rgba(11,11,11,.3) }
     .cal-drawer.open { transform:translateY(0) }
     .cal-drawer-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px }
     .cal-drawer-head .title { font-size:.95rem; font-weight:800; text-transform:uppercase; color: var(--white) }
@@ -198,7 +198,13 @@
     .legend-row { display:flex; gap:22px; flex-wrap:wrap; font-size:.76rem; color: var(--muted) }
     .legend-row span.item { display:flex; align-items:center; gap:7px }
     .legend-dot { width:8px; height:8px; border-radius:50%; display:inline-block }
-    .event-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:26px }
+    /* Elenco a scorrimento interno: con una stagione piena di date la
+       pagina non si allunga all'infinito, resta tutto raggiungibile
+       scorrendo dentro il riquadro */
+    .event-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:26px; max-height:min(1400px,calc(100vh - 160px)); overflow-y:auto; padding:4px 14px 4px 4px; margin:-4px -14px -4px -4px; scrollbar-color: var(--red) transparent }
+    .event-grid::-webkit-scrollbar { width:8px }
+    .event-grid::-webkit-scrollbar-track { background:transparent }
+    .event-grid::-webkit-scrollbar-thumb { background: var(--red); border-radius:4px }
     .event-card { background: var(--white); border:1px solid rgba(11,11,11,.12); border-radius:10px; overflow:hidden; display:flex; flex-direction:column; transition:border-color .2s,box-shadow .2s }
     .event-card:hover { border-color: var(--red); box-shadow:0 6px 20px rgba(11,11,11,.08) }
     .event-media { position:relative; aspect-ratio:16/9; background: var(--panna) }
@@ -220,7 +226,7 @@
     /* ── Card foto (ricordi / luoghi) ───────────────────────────────── */
     .recap-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:20px }
     .recap-card { background: var(--white); border:1px solid rgba(11,11,11,.12); border-radius:10px; overflow:hidden }
-    .recap-card img { width:100%; aspect-ratio:4/3; object-fit:cover; display:block }
+    .recap-card img { width:100%; aspect-ratio:16/9; object-fit:cover; display:block }
     .recap-card .body { padding:16px }
     .recap-card .n { font-size:.95rem; font-weight:800; color: var(--ink) }
 
@@ -312,7 +318,7 @@
       <div class="title" id="drawerTitle">Calendario</div>
       <button class="cal-drawer-close" id="drawerClose" aria-label="Chiudi">✕</button>
     </div>
-    <div id="drawerCalendario"><div id="todayListDrawer"></div></div>
+    <div id="drawerCalendario"><div id="todayListDrawer"></div><a href="#calendario" class="calendar-more" id="drawerCalendarMore">Scopri di più →</a></div>
     <div id="drawerFilm" class="drawer-film-grid" style="display:none"></div>
     <div id="drawerLuogo" style="display:none;background:var(--white);color:var(--ink)"></div>
   </div>
@@ -569,19 +575,32 @@ function todayStr(){ const d=new Date(); return d.getFullYear()+'-'+String(d.get
 const STATO_MAP={ confermato:{label:"Confermato",dot:"#1f8a52",text:"#1f8a52"}, attesa:{label:"In attesa",dot:"#9c6a0c",text:"#9c6a0c"}, annullato:{label:"Annullato",dot:"#9c968e",text:"#726c62"} };
 function prezzoInfo(chf){ if(!chf) return {label:"Gratuito",color:"#1f8a52"}; return {label:"CHF "+Number(chf).toFixed(2).replace(/\.00$/,'')+".–",color:"#0b0b0b"}; }
 function dossierStato(dossier){ const s=dossier&&dossier.status; return s==='confermata'?'confermato':(s==='annullata'?'annullato':'attesa'); }
-function buildEvento(booking, dateEntry, filmsById){
+function buildEvento(booking, dateEntry, filmsById, fallbackImgs){
   const ct=dateEntry.cinetour||{};
   const film=booking.filmId?filmsById[booking.filmId]:null;
-  const titolo=film?film.title:(booking.oaFilmTitle||booking.name||'');
+  // Il titolo è il primo campo mostrato in ogni card: se non è ancora noto
+  // (né film d'archivio né titolo libero) lo diciamo esplicitamente,
+  // invece di ripiegare sul nome interno della prenotazione
+  const titolo=film?film.title:(booking.oaFilmTitle||'Titolo non ancora disponibile');
   const stato=dossierStato(dateEntry.dossier);
   const st=STATO_MAP[stato];
   const pr=prezzoInfo(ct.prezzoChf);
+  // Se non c'è alcuna immagine propria, pesca l'immagine di un film vero
+  // disponibile (meglio che la foto generica) — l'indice dipende dalla
+  // prenotazione+data così card diverse senza foto propria non mostrano
+  // sempre lo stesso film
+  let fallbackImg=fallbackImgs&&fallbackImgs.length?fallbackImgs[0]:"img/hero-bg.jpg";
+  if(fallbackImgs&&fallbackImgs.length>1){
+    const key=booking.id+dateEntry.date;
+    let h=0; for(let i=0;i<key.length;i++)h=(h*31+key.charCodeAt(i))>>>0;
+    fallbackImg=fallbackImgs[h%fallbackImgs.length];
+  }
   return {
     bookingId:booking.id, data:dateEntry.date, stato,
     // Card 16:9 in formato originale: ci vuole un'immagine orizzontale
     // (backdrop), non il poster verticale — il poster resta per la pagina
-    // evento, qui solo come ultima risorsa se non c'è alcun backdrop
-    titolo, img:ct.backdropUrl||(film&&film.backdrop)||ct.posterUrl||(film&&film.poster)||"img/hero-bg.jpg",
+    // evento
+    titolo, img:ct.backdropUrl||(film&&film.backdrop)||ct.posterUrl||(film&&film.poster)||fallbackImg,
     dataLabel:dataLabelFull(dateEntry.date), dataBreve:dataLabelBreve(dateEntry.date), ora:dateEntry.start||'',
     luogo:ct.luogoNome||'', luogoComune:ct.luogoComune||'', via:[ct.luogoVia,ct.luogoComune].filter(Boolean).join(', '),
     mapsUrl:ct.luogoMapsUrl||'#',
@@ -605,11 +624,20 @@ async function loadEventi(){
     ]);
     const filmsById={};
     fSnap.docs.forEach(d=>{ filmsById[d.id]={id:d.id,...d.data()}; });
+    // Immagini di riserva quando una data pubblicata non ha una propria
+    // foto: meglio quelle di film veri (di preferenza open air) che la
+    // generica img/hero-bg.jpg senza relazione col cinema — un intero
+    // elenco, non una sola, così card diverse senza foto propria non
+    // mostrano tutte lo stesso film (vedi buildEvento)
+    const filmsArr=Object.values(filmsById);
+    const openAirImgs=filmsArr.filter(f=>f.openAir&&(f.backdrop||f.poster)).map(f=>f.backdrop||f.poster);
+    const anyImgs=filmsArr.filter(f=>f.backdrop||f.poster).map(f=>f.backdrop||f.poster);
+    const fallbackImgs=(openAirImgs.length?openAirImgs:anyImgs).length?(openAirImgs.length?openAirImgs:anyImgs):["img/hero-bg.jpg"];
     bSnap.docs.forEach(docSnap=>{
       const b={id:docSnap.id,...docSnap.data()};
       (b.dates||[]).forEach(dateEntry=>{
         if(dateEntry.cinetour&&dateEntry.cinetour.pubblicato){
-          raw.push(buildEvento(b,dateEntry,filmsById));
+          raw.push(buildEvento(b,dateEntry,filmsById,fallbackImgs));
           if(dateEntry.dossier?.status!=='annullata'&&b.filmId&&filmsById[b.filmId]&&!filmiCalendario.has(b.filmId)){
             filmiCalendario.set(b.filmId,filmsById[b.filmId]);
           }
@@ -674,11 +702,11 @@ let serateRecap = [
   { titolo:"Grease", luogo:"Giardino Pubblico, Chiasso", data:"20 luglio", img:"img/sample-postino.jpg" }
 ];
 
-const luoghi = [
-  { nome:"Parco Ciani", comune:"Lugano", note:"Prato panoramico sul lago, oltre 300 posti", img:"img/sample-luogo.jpg" },
-  { nome:"Piazza del Mercato", comune:"Mendrisio", note:"Centro storico, accesso pedonale", img:"img/sample-cinema-paradiso.jpg" },
-  { nome:"Giardino Pubblico", comune:"Bellinzona", note:"Ai piedi dei tre castelli", img:"img/hero-bg.jpg" },
-  { nome:"Lido comunale", comune:"Locarno", note:"Vista sul Lago Maggiore", img:"img/sample-up.jpg" }
+let luoghi = [
+  { nome:"Parco Ciani, Lugano", img:"img/sample-luogo.jpg" },
+  { nome:"Piazza del Mercato, Mendrisio", img:"img/sample-cinema-paradiso.jpg" },
+  { nome:"Giardino Pubblico, Bellinzona", img:"img/hero-bg.jpg" },
+  { nome:"Lido comunale, Locarno", img:"img/sample-up.jpg" }
 ];
 
 let filmProssimi = [
@@ -844,6 +872,14 @@ async function loadCinetourHome(){
     }
   }catch(err){ console.error('Errore serate magiche Cinetour', err); }
   try{
+    if(Array.isArray(home.luoghi)&&home.luoghi.some(l=>l&&l.img)){
+      luoghi = home.luoghi
+        .filter(l=>l&&l.img)
+        .map(l=>({nome:l.nome||'',img:l.img}));
+      renderLuoghiGrid();
+    }
+  }catch(err){ console.error('Errore luoghi Cinetour', err); }
+  try{
     if(Array.isArray(home.sponsor)&&home.sponsor.some(s=>s&&(s.nome||s.logo))){
       sponsor = home.sponsor.filter(s=>s&&(s.nome||s.logo));
       renderSponsorGrid();
@@ -858,12 +894,15 @@ async function loadCinetourHome(){
 }
 loadCinetourHome();
 
-document.getElementById('luogoGrid').innerHTML = luoghi.map(l => `
-  <div class="luogo-card">
-    <img src="${esc(l.img)}" alt="" loading="lazy">
-    <div class="body"><div class="n">${esc(l.nome)}</div><div class="c">${esc(l.comune)}</div><div class="note">${esc(l.note)}</div></div>
-  </div>
-`).join('');
+function renderLuoghiGrid(){
+  document.getElementById('luogoGrid').innerHTML = luoghi.map(l => `
+    <div class="luogo-card">
+      <img src="${esc(l.img)}" alt="" loading="lazy">
+      <div class="body"><div class="n">${esc(l.nome)}</div></div>
+    </div>
+  `).join('');
+}
+renderLuoghiGrid();
 
 function filmCardHtml(f, small){
   return `<div><img src="${esc(f.poster)}" alt="" loading="lazy">${small ? `<div class="t">${esc(f.titolo)}</div>` : `<div class="t">${esc(f.titolo)}</div><div class="g">${esc(f.genere)} · ${esc(f.anno)}</div>`}</div>`;
@@ -1131,6 +1170,7 @@ function closeDrawer(){
 tabBtns.forEach(b => b.addEventListener('click', () => openDrawer(b.dataset.tab)));
 drawerBackdrop.addEventListener('click', closeDrawer);
 document.getElementById('drawerClose').addEventListener('click', closeDrawer);
+document.getElementById('drawerCalendarMore').addEventListener('click', closeDrawer);
 
 // ── Newsletter: iscrizione reale su cinetourIscritti ────────────────
 document.getElementById('newsletterForm').addEventListener('submit', async (e) => {
