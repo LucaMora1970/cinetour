@@ -484,7 +484,7 @@ c-141 -1 -372 -1 -515 0 l-260 3 277 187 c152 103 282 187 288 188 7 0 115
 
   <div class="section sec-luoghi" style="padding-top:110px;color:#fffdf8;display:none">
     <div class="eyebrow-amb"><span></span>Dove andiamo</div>
-    <h2 class="title-amb" style="margin-bottom:32px">I luoghi che <span class="accent">visitiamo</span>.</h2>
+    <h2 class="title-amb" style="margin-bottom:32px">Alcuni luoghi che <span class="accent">visitiamo</span>.</h2>
     <div class="luogo-grid" id="luogoGrid"></div>
   </div>
 
@@ -926,7 +926,11 @@ document.getElementById('drawerLuogo').innerHTML = luoghi.map(l => `
 function renderSponsorGrid(){
   document.getElementById('sponsorGrid').innerHTML = sponsor.map(s => {
     if(typeof s==='string') return `<div class="sponsor-tile">${esc(s)}</div>`;
-    return `<div class="sponsor-tile">${s.logo?`<img src="${esc(s.logo)}" alt="${esc(s.nome||'')}">`:''}${s.nome?`<span>${esc(s.nome)}</span>`:''}</div>`;
+    const inner = `${s.logo?`<img src="${esc(s.logo)}" alt="${esc(s.nome||'')}">`:''}${s.nome?`<span>${esc(s.nome)}</span>`:''}`;
+    const link = /^https?:\/\//i.test(s.link||'') ? s.link : '';
+    return link
+      ? `<a class="sponsor-tile" href="${esc(link)}" target="_blank" rel="noopener">${inner}</a>`
+      : `<div class="sponsor-tile">${inner}</div>`;
   }).join('');
 }
 renderSponsorGrid();
@@ -1093,7 +1097,6 @@ function buildTimeline(data){
   tlLabels.innerHTML = data.map((t,i) => `
     <div class="tl-stop" data-i="${i}">
       <div class="d">${esc(t.data)}</div>
-      <div class="l">${esc(t.luogo)}</div>
       <div class="c">${esc(t.comune)}</div>
     </div>
   `).join('');
@@ -1197,7 +1200,7 @@ const panels = {
   film: document.getElementById('drawerFilm'),
   luogo: document.getElementById('drawerLuogo')
 };
-const titles = { calendario: 'Calendario', film: 'Film in programma', luogo: 'I luoghi che visitiamo' };
+const titles = { calendario: 'Calendario', film: 'Film in programma', luogo: 'Alcuni luoghi che visitiamo' };
 const tabBtns = Array.from(document.querySelectorAll('.tab-btn'));
 
 function openDrawer(tab){
