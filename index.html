@@ -287,8 +287,13 @@
     .film-grid .g { font-size:.74rem; color: var(--muted-dark) }
 
     .sponsor-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:16px }
-    .sponsor-tile { background: var(--white); border:1px solid rgba(11,11,11,.12); border-radius:10px; padding:26px 16px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; text-align:center; font-size:.84rem; font-weight:700; color:#4a4540 }
-    .sponsor-tile img { max-width:100%; max-height:40px; object-fit:contain; display:block }
+    /* Stesso riquadro per tutti: altezza fissa (non dipende più
+       dall'eventuale nome sotto il logo, ora rimosso), logo sempre ben
+       visibile e leggibile su sfondo bianco indipendentemente dai colori
+       del marchio */
+    .sponsor-tile { background: var(--white); border:1px solid rgba(11,11,11,.12); border-radius:10px; padding:16px; height:100px; display:flex; align-items:center; justify-content:center; text-align:center; font-size:.84rem; font-weight:700; color:#4a4540; transition:border-color .2s ease,transform .2s ease }
+    a.sponsor-tile:hover { border-color: var(--red); transform:translateY(-2px) }
+    .sponsor-tile img { max-width:100%; max-height:100%; object-fit:contain; display:block }
 
     .newsletter-box { background: var(--surf); border:1px solid rgba(255,253,248,.14); border-radius:16px; padding:52px max(5vw,36px); display:flex; flex-wrap:wrap; gap:28px; align-items:center; justify-content:space-between }
     .newsletter-box .copy { max-width:440px }
@@ -1038,7 +1043,12 @@ function renderDrawerLuoghiCalendario(list){
 function renderSponsorGrid(){
   document.getElementById('sponsorGrid').innerHTML = sponsor.map(s => {
     if(typeof s==='string') return `<div class="sponsor-tile">${esc(s)}</div>`;
-    const inner = `${s.logo?`<img src="${esc(s.logo)}" alt="${esc(s.nome||'')}">`:''}${s.nome?`<span>${esc(s.nome)}</span>`:''}`;
+    // Solo il logo quando c'è: il nome resta solo come alt/title (per
+    // accessibilità e tooltip), non più visualizzato accanto all'immagine.
+    // Senza logo, il nome resta l'unico contenuto possibile del riquadro
+    const inner = s.logo
+      ? `<img src="${esc(s.logo)}" alt="${esc(s.nome||'')}" title="${esc(s.nome||'')}" loading="lazy">`
+      : (s.nome?`<span>${esc(s.nome)}</span>`:'');
     const link = /^https?:\/\//i.test(s.link||'') ? s.link : '';
     return link
       ? `<a class="sponsor-tile" href="${esc(link)}" target="_blank" rel="noopener">${inner}</a>`
