@@ -294,6 +294,7 @@
     .sponsor-tile { background: var(--white); border:1px solid rgba(11,11,11,.12); border-radius:10px; padding:16px; height:100px; display:flex; align-items:center; justify-content:center; text-align:center; font-size:.84rem; font-weight:700; color:#4a4540; transition:border-color .2s ease,transform .2s ease }
     a.sponsor-tile:hover { border-color: var(--red); transform:translateY(-2px) }
     .sponsor-tile img { max-width:100%; max-height:100%; object-fit:contain; display:block }
+    .sponsor-tile.wide { grid-column: span 2 }
 
     .newsletter-box { background: var(--surf); border:1px solid rgba(255,253,248,.14); border-radius:16px; padding:52px max(5vw,36px); display:flex; flex-wrap:wrap; gap:28px; align-items:center; justify-content:space-between }
     .newsletter-box .copy { max-width:440px }
@@ -1041,6 +1042,13 @@ function renderDrawerLuoghiCalendario(list){
 }
 
 function renderSponsorGrid(){
+  // I loghi marcati "orizzontale" in admin prendono un riquadro più largo
+  // (doppia colonna) invece di restringersi nella stessa cella quadrata
+  // degli altri. Non è rilevabile automaticamente dalla proporzione del
+  // file: i loghi caricati sono spesso già un canvas quadrato con il
+  // marchio inscritto su sfondo trasparente, e leggerne il contenuto
+  // pixel per pixel richiederebbe CORS abilitato sul bucket Storage (non
+  // configurato) — da qui il flag impostato a mano in admin
   document.getElementById('sponsorGrid').innerHTML = sponsor.map(s => {
     if(typeof s==='string') return `<div class="sponsor-tile">${esc(s)}</div>`;
     // Solo il logo quando c'è: il nome resta solo come alt/title (per
@@ -1050,9 +1058,10 @@ function renderSponsorGrid(){
       ? `<img src="${esc(s.logo)}" alt="${esc(s.nome||'')}" title="${esc(s.nome||'')}" loading="lazy">`
       : (s.nome?`<span>${esc(s.nome)}</span>`:'');
     const link = /^https?:\/\//i.test(s.link||'') ? s.link : '';
+    const cls = 'sponsor-tile' + (s.orizzontale?' wide':'');
     return link
-      ? `<a class="sponsor-tile" href="${esc(link)}" target="_blank" rel="noopener">${inner}</a>`
-      : `<div class="sponsor-tile">${inner}</div>`;
+      ? `<a class="${cls}" href="${esc(link)}" target="_blank" rel="noopener">${inner}</a>`
+      : `<div class="${cls}">${inner}</div>`;
   }).join('');
 }
 renderSponsorGrid();
