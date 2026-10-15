@@ -13,6 +13,17 @@
   <link rel="icon" type="image/png" sizes="16x16" href="img/favicon-16x16.png">
   <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
 
+  <!-- Avvia subito DNS+TLS verso gli origin usati appena dopo, in parallelo
+       al parsing/caricamento HTML, invece che partire da zero quando
+       Firestore risolve e si scopre solo allora l'URL reale dell'immagine
+       header su Storage — il collo di bottiglia reale di questo caricamento -->
+  <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://firestore.googleapis.com" crossorigin>
+  <link rel="preconnect" href="https://firebasestorage.googleapis.com" crossorigin>
+  <link rel="dns-prefetch" href="https://www.gstatic.com">
+  <link rel="dns-prefetch" href="https://firestore.googleapis.com">
+  <link rel="dns-prefetch" href="https://firebasestorage.googleapis.com">
+
   <!-- Niente preload qui per img/hero-bg.jpg: con una foto vera già
        configurata dall'admin (il caso comune), forzerebbe comunque lo
        scaricamento della statica inutilizzata ad ogni visita — un
@@ -329,7 +340,7 @@
   </header>
 
   <section class="hero">
-    <img class="hero-bg" alt="">
+    <img class="hero-bg" alt="" fetchpriority="high" decoding="async">
     <div class="hero-scrim"></div>
     <div class="hero-inner">
       <div class="hero-brand">
@@ -361,7 +372,7 @@
   <div class="mobile-tabbar sec-calendario" style="display:none">
     <button class="tab-btn active" data-tab="calendario">Calendario</button>
     <button class="tab-btn" data-tab="film">Film</button>
-    <button class="tab-btn" data-tab="luogo">Luogo</button>
+    <button class="tab-btn" data-tab="luogo">Luoghi</button>
   </div>
 
   <div class="section" style="padding-top:16px">
